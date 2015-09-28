@@ -8,6 +8,5 @@ DOCUMENT_SRC = './data/BigSample/'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
-
 # Relative path to directory to store index
 INDEX_LOCATION = './index'
