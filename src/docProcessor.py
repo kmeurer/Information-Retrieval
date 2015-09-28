@@ -21,17 +21,36 @@ def readDocs(fileSrc):
 		util.updateProgress(float(idx)/float(len(lines)))
 		fileStr = fileStr + line
 	util.updateProgress(1)
-	# print fileStr
-	fileStr = fileStr.replace('\n', '').replace('\r', '')
+	fileStr = fileStr.replace('\n', ' ').replace('\r', '')
 	docArray = re.split('</DOC>', fileStr)
 	docDict = {}
-	for doc in docArray:
-		if doc == '':
+	# for each document, extract free text and tokenize
+	for idx, doc in enumerate(docArray):
+		# Ignore empty document tokens
+		if doc.isspace() or doc == "" :
 			continue
-		docId = re.search('<DOCNO>(.*)</DOCNO>', doc).group(1)
-		doc = re.sub('<DOCNO>(.*)</DOCNO>|<PARENT>(.*)</PARENT>|\(\d\)|\(\w\)', '', doc)
-		doc = re.sub('<.*?>', '', doc)
-		print doc
+		# Extract Document ID
+		# Convert document to Lower Case
+		doc = doc.lower()
+		docId = getDocId(doc)
+		doc = removeMetadata(doc)
+		doc = removeListInfo(doc)
+		doc = removeDocTags(doc)
+		if idx == 2:
+			print doc
+
+
+def getDocId(doc):
+	return re.search('<docno>(.*)</docno>', doc).group(1)
+
+def removeDocTags(doc):
+	return re.sub('<.*?>', ' ', doc)
+
+def removeMetadata(doc):
+	return re.sub('<docno>(.*)</docno>|<parent>(.*)</parent>', '', doc)
+
+def removeListInfo(doc):
+	return re.sub('\(\d\)|\(\w\)|subpart\s\w', '', doc)
 
 def tokenizeDocument(docStr):
 	print docStr
