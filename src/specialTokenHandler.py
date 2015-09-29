@@ -9,6 +9,8 @@ def processSpecialTokens(docStr):
 	newTerms = []
 	# For each term, determine if it is a special term
 	for term in docTerms:
+		if term.isspace() or term == '':
+			continue
 		if isFinancialValue(term):
 			term = processFinancialValue(term)
 		elif isDigit(term):
@@ -32,7 +34,10 @@ def processSpecialTokens(docStr):
 				term = processDigitAlphabet(term)
 			elif isPrefixedTerm(term):
 				term = processPrefixedTerm(term)
-		newTerms.append(term)
+		if type(term) is 'str':
+			newTerms.append(term)
+		elif type(term) is 'list':
+			newTerms = newTerms + term
 	return " ".join(newTerms)
 
 # UTILITY FUNCTIONS FOR SPECIFIC TOKEN TYPES
@@ -62,7 +67,7 @@ def processDates(docStr):
 	# dash date format: 1-24-1994
 	dashDates = re.findall('(\d{1,2}-\d{1,2}-(\d{4}|\d{2}))', docStr)
 	for date in dashDates:
-		print date
+
 		dateArr = date[0].split("-")
 		if len(dateArr[0]) < 2:
 			dateArr[0] = "0" + dateArr[0]
@@ -78,9 +83,12 @@ def processDates(docStr):
 
 # dotted term processing (ex: "U.S.A."->"usa", "Ph.D"->"phd", "B.S."->"bs")
 def isDottedTerm(docTerm):
+	if re.match(r'\b\w{1,3}\.\w\.?\b|\b\w\.\w\.\w\.\b|\b\w\.\w\.\w\.\w\.\b', docTerm):
+		return True
 	return False
 
 def processDottedTerm(docTerm):
+	docTerm = re.sub('\.', '', docTerm)
 	return docTerm
 
 # financial value processing (ex: $1000->$1000, $1,000->$1000, $15.75->$15.75)
@@ -90,8 +98,8 @@ def isFinancialValue(docTerm):
 	return False
 
 def processFinancialValue(docTerm):
-	docTerm = re.sub("$", "", docTerm)
-	processDigit(docTerm)
+	docTerm = re.sub("\$", "", docTerm)
+	docTerm = processDigit(docTerm)
 	docTerm = "{$" + docTerm + "}"
 	return docTerm
 
@@ -117,21 +125,29 @@ def processDigit(docTerm):
 
 # processing of alphabet-digits w/ 2 values stored if >3 letters (ex: "F-16"->"f16, "I-20"->i20, "CDC-50"->"cdc50" and "cdc")
 def isAlphabetDigit(docTerm):
-	if re.match('\w*-\d*', docTerm):
+	if re.match('\w+-\d+', docTerm):
 		return True
 	return False
 
 def processAlphabetDigit(docTerm):
-	return docTerm
+	docTerm = docTerm.split("-")
+	if (len(docTerm[0]) > 2):
+		return [docTerm[0], docTerm[0] + docTerm[1]]
+	else:
+		return docTerm[0] + docTerm[1]
 
 # processing of digit-alphabet (ex: "1-hour"->"1hour" and "hour")
 def isDigitAlphabet(docTerm):
-	if re.match('\d*-\w*', docTerm):
+	if re.match('\d+-\w+', docTerm):
 		return True
 	return False
 
 def processDigitAlphabet(docTerm):
-	return docTerm
+	docTerm = docTerm.split("-")
+	if (len(docTerm[1]) > 2):
+		return [docTerm[0] + docTerm[1], docTerm[1]]
+	else:
+		return docTerm[0] + docTerm[1]
 
 # processing of prefixed terms (ex: "pre-processing"->"preprocessing" and "processing", "part-of-speech"->"partofspeech" and "part" and "speech")
 def isPrefixedTerm(docTerm):
@@ -140,7 +156,15 @@ def isPrefixedTerm(docTerm):
 	return False
 
 def processPrefixedTerm(docTerm):
-	return docTerm
+	splitTermList = docTerm.split("-")
+	if splitTermList[0] in ENV.PREFIX_LIST:
+		returnArr = [splitTermList[0] + splitTermList[1], splitTermList[1]]
+
+		return returnArr
+	else:
+		splitTermList.append(''.join(splitTermList))
+
+		return splitTermList
 
 # processing of file extensions (ex: "something.pdf"->"pdf" and "something")
 def isFileExtension(docTerm):
@@ -150,7 +174,8 @@ def isFileExtension(docTerm):
 	return False
 
 def processFileExtension(docTerm):
-	return docTerm
+	terms = docTerm.split(".")
+	return terms
 
 def containsDomainName(docTerm):
 	for domain in ENV.DOMAIN_LIST:
@@ -165,18 +190,17 @@ def isEmailAddress(docTerm):
 	return False
 
 def processEmailAddress(docTerm):
-	return docTerm
+	return "{" + docTerm + "}"
 
 # processing of IP addresses (ex: "73.172.16.182"->"{73.172.16.182}")
 def isIPAddress(docTerm):
+	if re.match('\d{2}\.\d{3}.\d{2}.{\3}', docTerm):
+		return True
 	return False
 
 def processIPAddress(docTerm):
-	return docTerm
+	return "{" + docTerm + "}"
 
 # processing of URLs (ex: "georgetown.edu"-> "{georgetown.edu}")
-def isURL(docTerm):
-	return False
-
 def processURL(docTerm):
-	return docTerm
+	return "{" + docTerm + "}"
