@@ -3,6 +3,7 @@ import codecs
 import os
 import utils as util
 import settings as ENV
+import specialTokenHandler as sth
 
 def extractDocuments():
 	docFiles = []
@@ -36,7 +37,10 @@ def readDocs(fileSrc):
 		doc = removeMetadata(doc)
 		doc = removeListInfo(doc)
 		doc = removeDocTags(doc)
-		if idx == 2:
+		doc = sth.processSpecialTokens(doc)
+		# clean up document by eliminating extraneous tokens
+		# doc = re.split('\s*[\^\*\#\@\.\[\]]*\s*', doc)
+		if idx == 3:
 			print doc
 
 

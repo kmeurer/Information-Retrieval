@@ -10,3 +10,8 @@ STOP_LIST_SRC = './data/stops.txt'
 
 # Relative path to directory to store index
 INDEX_LOCATION = './index'
+
+# Prefix, suffix, and domain lists
+PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 'ex', 'homo', 'hetero', 'hyper', 'in', 'inter', 'intra', 'mono', 'non', 'micro', 'macro', 'pre', 'post', 're', 'trans', 'tri', 'un', 'uni']
+DOMAIN_LIST = ['com', 'edu', 'org', 'net', 'gov']
+

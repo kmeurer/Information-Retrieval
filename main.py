@@ -8,9 +8,9 @@ import datetime
 
 startTime = datetime.datetime.now()
 
-dp.extractDocuments()
-
+documentDictionary = dp.extractDocuments() # Extract information from our files.
 
 endTime = datetime.datetime.now()
 timeSpent = endTime - startTime
+
 print "PROGRAM COMPLETED IN " + str(timeSpent.seconds) + " SECONDS\n\n\n--------------------------\n\n\n"
