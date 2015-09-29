@@ -15,5 +15,6 @@ INCLUDE_DECIMALS = True
 
 # Prefix, suffix, and domain lists
 PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 'ex', 'homo', 'hetero', 'hyper', 'in', 'inter', 'intra', 'mono', 'non', 'micro', 'macro', 'pre', 'post', 're', 'trans', 'tri', 'un', 'uni']
-DOMAIN_LIST = ['com', 'edu', 'org', 'net', 'gov']
+DOMAIN_LIST = ['.com', '.edu', '.org', '.net', '.gov']
+FILE_EXTENSION_LIST = ['.pdf', '.html', '.doc', '.docx', '.css', '.ppt', '.py', '.txt', '.csv', '.xml', '.mp3', '.mov', '.avi', '.png', '.jpeg', '.jpg', '.xls', '.exe', '.js']
 

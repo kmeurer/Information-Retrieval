@@ -117,6 +117,8 @@ def processDigit(docTerm):
 
 # processing of alphabet-digits w/ 2 values stored if >3 letters (ex: "F-16"->"f16, "I-20"->i20, "CDC-50"->"cdc50" and "cdc")
 def isAlphabetDigit(docTerm):
+	if re.match('\w*-\d*', docTerm):
+		return True
 	return False
 
 def processAlphabetDigit(docTerm):
@@ -124,6 +126,8 @@ def processAlphabetDigit(docTerm):
 
 # processing of digit-alphabet (ex: "1-hour"->"1hour" and "hour")
 def isDigitAlphabet(docTerm):
+	if re.match('\d*-\w*', docTerm):
+		return True
 	return False
 
 def processDigitAlphabet(docTerm):
@@ -131,6 +135,8 @@ def processDigitAlphabet(docTerm):
 
 # processing of prefixed terms (ex: "pre-processing"->"preprocessing" and "processing", "part-of-speech"->"partofspeech" and "part" and "speech")
 def isPrefixedTerm(docTerm):
+	if re.match('\w*-\w*|\w*-\w*-\w*|\w*-\w*-\w*-\w*', docTerm):
+		return True
 	return False
 
 def processPrefixedTerm(docTerm):
@@ -138,16 +144,24 @@ def processPrefixedTerm(docTerm):
 
 # processing of file extensions (ex: "something.pdf"->"pdf" and "something")
 def isFileExtension(docTerm):
+	for extension in ENV.FILE_EXTENSION_LIST:
+		if extension in docTerm:
+			return True
 	return False
 
 def processFileExtension(docTerm):
 	return docTerm
 
 def containsDomainName(docTerm):
+	for domain in ENV.DOMAIN_LIST:
+		if domain in docTerm:
+			return True
 	return False
 
 # processing of email addresses (ex: "kevin@kevin.com"->"{kevin@kevin.com}")
 def isEmailAddress(docTerm):
+	if "@" in docTerm:
+		return True
 	return False
 
 def processEmailAddress(docTerm):
