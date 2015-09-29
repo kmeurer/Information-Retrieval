@@ -6,17 +6,17 @@ import settings as ENV
 import specialTokenHandler as sth
 
 def extractDocuments():
-	docFiles = []
+	docFileNames = []
 	for filename in os.listdir(ENV.DOCUMENT_SRC):
-		docFiles.append(filename)
-	readDocs(ENV.DOCUMENT_SRC + docFiles[0])
+		docFileNames.append(filename)
+	readDocs(ENV.DOCUMENT_SRC + docFileNames[0])
 
 
 def readDocs(fileSrc):
 	dataFile = codecs.open(fileSrc, 'rb', 'utf-8') 	# specify utf-8 encoding
 	lines = dataFile.readlines() 					# read all lines
 	fileStr = ""
-	print "Unpacking file: " + fileSrc
+	print "\nUnpacking file: " + fileSrc
 	util.updateProgress(0)
 	for idx, line in enumerate(lines):
 		util.updateProgress(float(idx)/float(len(lines)))
@@ -26,22 +26,24 @@ def readDocs(fileSrc):
 	docArray = re.split('</DOC>', fileStr)
 	docDict = {}
 	# for each document, extract free text and tokenize
+	print "\n\nProcessing documents included in " + fileSrc
+	util.updateProgress(0)
 	for idx, doc in enumerate(docArray):
+		util.updateProgress(float(idx) / float(len(docArray)))
 		# Ignore empty document tokens
 		if doc.isspace() or doc == "" :
 			continue
-		# Extract Document ID
 		# Convert document to Lower Case
 		doc = doc.lower()
+		# Extract Document ID
 		docId = getDocId(doc)
 		doc = removeMetadata(doc)
 		doc = removeListInfo(doc)
 		doc = removeDocTags(doc)
 		doc = sth.processSpecialTokens(doc)
-		# clean up document by eliminating extraneous tokens
+		# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
 		# doc = re.split('\s*[\^\*\#\@\.\[\]]*\s*', doc)
-		if idx == 3:
-			print doc
+	util.updateProgress(1)
 
 
 def getDocId(doc):
