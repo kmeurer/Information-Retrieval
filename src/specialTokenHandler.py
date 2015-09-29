@@ -1,5 +1,7 @@
 import re
 import time
+import utils as util
+import settings as ENV
 
 def processSpecialTokens(docStr):
 	docStr = processDates(docStr)
@@ -11,8 +13,8 @@ def processSpecialTokens(docStr):
 			term = processFinancialValue(term)
 		elif isDigit(term):
 			term = processDigit(term)
-		if "." in term:
-			elif isFileExtension(term):
+		elif "." in term:
+			if isFileExtension(term):
 				term = processFileExtension(term)
 			elif containsDomainName(term):	
 				if isEmailAddress(term):
@@ -83,16 +85,34 @@ def processDottedTerm(docTerm):
 
 # financial value processing (ex: $1000->$1000, $1,000->$1000, $15.75->$15.75)
 def isFinancialValue(docTerm):
+	if "$" in docTerm:
+		return True
 	return False
 
 def processFinancialValue(docTerm):
+	docTerm = re.sub("$", "", docTerm)
+	processDigit(docTerm)
+	docTerm = "{$" + docTerm + "}"
 	return docTerm
 
 # digit processing (ex: 1,000,000->1000000)
 def isDigit(docTerm):
+	termCopy = re.sub(",", "", docTerm)
+	if util.isNumber(termCopy):
+		return True
 	return False
 
 def processDigit(docTerm):
+	docTerm = re.sub(",", "", docTerm)
+	if "." in docTerm:
+		if docTerm[len(docTerm) - 1] == ".":
+			docTerm = re.sub(".", "", docTerm)
+		elif re.match('\d+\.0+', docTerm):
+			docTerm = docTerm.split(".")[0]
+		elif ENV.INCLUDE_DECIMALS == True:
+			docTerm = "{" + docTerm + "}"
+		else:
+			docTerm = docTerm.split(".")[0]
 	return docTerm
 
 # processing of alphabet-digits w/ 2 values stored if >3 letters (ex: "F-16"->"f16, "I-20"->i20, "CDC-50"->"cdc50" and "cdc")
