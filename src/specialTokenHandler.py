@@ -1,8 +1,9 @@
 import re
-import time
+import datetime
 import utils as util
 import settings as ENV
 
+# Takes in a full string and returns a term list of processed terms
 def processSpecialTokens(docStr):
 	docStr = processDates(docStr)
 	docTerms = re.split('\s*', docStr)
@@ -21,7 +22,7 @@ def processSpecialTokens(docStr):
 			elif containsDomainName(term):	
 				if isEmailAddress(term):
 					term = processEmailAddress(term)
-				elif isURL(term):
+				else:
 					term = processURL(term)
 			elif isIPAddress(term):
 				term = processIPAddress(term)
@@ -34,11 +35,11 @@ def processSpecialTokens(docStr):
 				term = processDigitAlphabet(term)
 			elif isPrefixedTerm(term):
 				term = processPrefixedTerm(term)
-		if type(term) is 'str':
-			newTerms.append(term)
-		elif type(term) is 'list':
+		if isinstance(term, list):
 			newTerms = newTerms + term
-	return " ".join(newTerms)
+		else:
+			newTerms.append(term)
+	return newTerms
 
 # UTILITY FUNCTIONS FOR SPECIFIC TOKEN TYPES
 # date processing (supported formats: "MMMM dd, YYYY", "MM/DD/YYYY", "MM-DD-YYYY")
@@ -47,12 +48,12 @@ def processDates(docStr):
 	slashDates = re.findall(r'(\d{1,2}\/\d{1,2}\/(\d{4}|\d{2}))', docStr)
 	for date in slashDates:
 		dateArr = date[0].split("/")
-		if len(dateArr[0]) < 2:
-			dateArr[0] = "0" + dateArr[0]
-		if len(dateArr[1]) < 2:
-			dateArr[1] = "0" + dateArr[1]
+		if len(dateArr[0]) == 2 and dateArr[0][0] == "0":
+			dateArr[0] = dateArr[0][1]
+		if len(dateArr[1]) == 2 and dateArr[1][0] == "0":
+			dateArr[1] = dateArr[1][1]
 		if len(dateArr[2]) == 2:
-			if (int(dateArr) <= 18):
+			if (int(dateArr[2]) <= 18):
 				dateArr[2] = "20" + dateArr[2]
 			else:
 				dateArr[2] = "19" + dateArr[2]
@@ -61,20 +62,19 @@ def processDates(docStr):
 	# full date format: january 24, 1994
 	fullDates = re.findall(r'((january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\,\s+\d{4})', docStr)
 	for date in fullDates:
-		realTime = time.strptime(date[0], "%B %d, %Y")
-		docStr = docStr.replace(date[0], time.strftime("%m/%24/%Y", realTime))
+		realTime = datetime.datetime.strptime(date[0], "%B %d, %Y")
+		docStr = docStr.replace(date[0], str(realTime.month) + "/" + str(realTime.day) + "/" + str(realTime.year))
 
 	# dash date format: 1-24-1994
 	dashDates = re.findall('(\d{1,2}-\d{1,2}-(\d{4}|\d{2}))', docStr)
 	for date in dashDates:
-
 		dateArr = date[0].split("-")
-		if len(dateArr[0]) < 2:
-			dateArr[0] = "0" + dateArr[0]
-		if len(dateArr[1]) < 2:
-			dateArr[1] = "0" + dateArr[1]
+		if len(dateArr[0]) == 2 and dateArr[0][0] == "0":
+			dateArr[0] = dateArr[0][1]
+		if len(dateArr[1]) == 2 and dateArr[1][0] == "0":
+			dateArr[1] = dateArr[1][1]
 		if len(dateArr[2]) == 2:
-			if (int(dateArr) <= 18):
+			if (int(dateArr[2]) <= 18):
 				dateArr[2] = "20" + dateArr[2]
 			else:
 				dateArr[2] = "19" + dateArr[2]
@@ -100,7 +100,10 @@ def isFinancialValue(docTerm):
 def processFinancialValue(docTerm):
 	docTerm = re.sub("\$", "", docTerm)
 	docTerm = processDigit(docTerm)
-	docTerm = "{$" + docTerm + "}"
+	if len(docTerm) == 0:
+		return docTerm
+	else:
+		docTerm = "{$" + docTerm + "}"
 	return docTerm
 
 # digit processing (ex: 1,000,000->1000000)

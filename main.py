@@ -1,4 +1,5 @@
 import sys
+import os
 sys.path.insert(0, 'src')
 
 import docProcessor as dp
@@ -8,7 +9,9 @@ import datetime
 
 startTime = datetime.datetime.now()
 
-documentDictionary = dp.extractDocuments() # Extract information from our files.
+docFileNames = []
+for filename in os.listdir(ENV.DOCUMENT_SRC):
+	documentDictionary = dp.extractDocuments(ENV.DOCUMENT_SRC + filename) # Extract information from our files.
 
 endTime = datetime.datetime.now()
 timeSpent = endTime - startTime

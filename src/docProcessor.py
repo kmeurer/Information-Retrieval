@@ -5,11 +5,9 @@ import utils as util
 import settings as ENV
 import specialTokenHandler as sth
 
-def extractDocuments():
-	docFileNames = []
-	for filename in os.listdir(ENV.DOCUMENT_SRC):
-		docFileNames.append(filename)
-	readDocs(ENV.DOCUMENT_SRC + docFileNames[0])
+def extractDocuments(fileName):
+	documentDict = readDocs(fileName)
+	return documentDict
 
 
 def readDocs(fileSrc):
@@ -40,11 +38,26 @@ def readDocs(fileSrc):
 		doc = removeMetadata(doc)
 		doc = removeListInfo(doc)
 		doc = removeDocTags(doc)
-		doc = sth.processSpecialTokens(doc)
+		# Process special tokens and return the terms list
+		docTerms = sth.processSpecialTokens(doc)
+		finalTerms = []
 		# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
-		# doc = re.split('\s*[\^\*\#\@\.\[\]]*\s*', doc)
+		for idx, term in enumerate(docTerms):
+			if term.isspace() or term == "":
+				continue
+			if term[0] == '{' and term[len(term) - 1] == '}':
+				term = re.sub('[\{\}]', '', term)
+				finalTerms.append(term)
+			else:
+				term = re.sub('[\^\*\#\@\.\[\]\(\);]', '', term)
+				if term.isspace() or term == "":
+					continue
+				else:
+					finalTerms.append(term)
+		docDict[docId] = finalTerms
 	util.updateProgress(1)
-
+	print "\n"
+	return docDict
 
 def getDocId(doc):
 	return re.search('<docno>(.*)</docno>', doc).group(1)
