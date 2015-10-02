@@ -39,15 +39,15 @@ def processSpecialTokens(docStr):
 			newTerms = newTerms + term
 		else:
 			newTerms.append(term)
-	return newTerms
+	return " ".join(newTerms)
 
 # UTILITY FUNCTIONS FOR SPECIFIC TOKEN TYPES
 # date processing (supported formats: "MMMM dd, YYYY", "MM/DD/YYYY", "MM-DD-YYYY")
 def processDates(docStr):
-	# slash date format: 1/24/1994 (we only find these to change 1 -> 01 and make all numbers two digits)
-	slashDates = re.findall(r'(\d{1,2}\/\d{1,2}\/(\d{4}|\d{2}))', docStr)
+	# slash date format: 1/24/1994 (we only find these to change 01 -> 1 and make all numbers consistent digits)
+	slashDates = re.findall(r'(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))', docStr)
 	for date in slashDates:
-		dateArr = date[0].split("/")
+		dateArr = date.split("/")
 		if len(dateArr[0]) == 2 and dateArr[0][0] == "0":
 			dateArr[0] = dateArr[0][1]
 		if len(dateArr[1]) == 2 and dateArr[1][0] == "0":
@@ -57,18 +57,18 @@ def processDates(docStr):
 				dateArr[2] = "20" + dateArr[2]
 			else:
 				dateArr[2] = "19" + dateArr[2]
-		docStr = docStr.replace(date[0], "/".join(dateArr))
+		docStr = docStr.replace(date, "/".join(dateArr))
 
 	# full date format: january 24, 1994
-	fullDates = re.findall(r'((january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\,\s+\d{4})', docStr)
+	fullDates = re.findall(r'((?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}\,\s+\d{4})', docStr)
 	for date in fullDates:
-		realTime = datetime.datetime.strptime(date[0], "%B %d, %Y")
-		docStr = docStr.replace(date[0], str(realTime.month) + "/" + str(realTime.day) + "/" + str(realTime.year))
+		realTime = datetime.datetime.strptime(date, "%B %d, %Y")
+		docStr = docStr.replace(date, str(realTime.month) + "/" + str(realTime.day) + "/" + str(realTime.year))
 
 	# dash date format: 1-24-1994
-	dashDates = re.findall('(\d{1,2}-\d{1,2}-(\d{4}|\d{2}))', docStr)
+	dashDates = re.findall('(\d{1,2}-\d{1,2}-(?:\d{4}|\d{2}))', docStr)
 	for date in dashDates:
-		dateArr = date[0].split("-")
+		dateArr = date.split("-")
 		if len(dateArr[0]) == 2 and dateArr[0][0] == "0":
 			dateArr[0] = dateArr[0][1]
 		if len(dateArr[1]) == 2 and dateArr[1][0] == "0":
@@ -78,7 +78,7 @@ def processDates(docStr):
 				dateArr[2] = "20" + dateArr[2]
 			else:
 				dateArr[2] = "19" + dateArr[2]
-		docStr = docStr.replace(date[0], "/".join(dateArr))
+		docStr = docStr.replace(date, "/".join(dateArr))
 	return docStr
 
 # dotted term processing (ex: "U.S.A."->"usa", "Ph.D"->"phd", "B.S."->"bs")
@@ -197,11 +197,12 @@ def processEmailAddress(docTerm):
 
 # processing of IP addresses (ex: "73.172.16.182"->"{73.172.16.182}")
 def isIPAddress(docTerm):
-	if re.match('\d{2}\.\d{3}.\d{2}.{\3}', docTerm):
+	if re.match('\d{2,3}\.\d{2,3}\.\d{2,3}\.\d{2,3}', docTerm):
 		return True
 	return False
 
 def processIPAddress(docTerm):
+	print "IP ADDRESS: " + docTerm
 	return "{" + docTerm + "}"
 
 # processing of URLs (ex: "georgetown.edu"-> "{georgetown.edu}")

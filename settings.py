@@ -1,16 +1,20 @@
 # USED TO STORE GLOBAL / ENVIRONMENTAL VARIABLES
 
-# General Settings
-PROGRESS_BAR = True 							# set whether a progress bar is used to show output.  Should be turned off when writing to files
+# General SETTINGS
+PROGRESS_BAR = True
 
 # Source directory for documents to be indexed (always use trailing slash)
 DOCUMENT_SRC = './data/BigSample/'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
+# INDEX SETTINGS
 # Relative path to directory to store index
 INDEX_LOCATION = './index'
+# Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
+INDEX_TYPE = "INVERTED"
 
+# Pre
 INCLUDE_DECIMALS = True
 
 # Prefix, suffix, and domain lists
