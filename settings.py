@@ -14,8 +14,9 @@ INDEX_LOCATION = './index'
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
 INDEX_TYPE = "INVERTED"
 
-# Pre
+# PRE-PROCESSING SETTINGS
 INCLUDE_DECIMALS = True
+REMOVE_STOP_WORDS = True
 
 # Prefix, suffix, and domain lists
 PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 'ex', 'homo', 'hetero', 'hyper', 'in', 'inter', 'intra', 'mono', 'non', 'micro', 'macro', 'pre', 'post', 're', 'trans', 'tri', 'un', 'uni']

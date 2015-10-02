@@ -49,11 +49,17 @@ class Document:
 	def extractTermInformation(self):
 		if len(self.tokens) == 0:
 			self.tokenizeDocument();
-		postingList = {} # in format {term: count, term2: count2}}
+		termCounts = {} # in format {term: count, term2: count2}}
 		for term in self.tokens:
-			if term in postingList:
-				postingList[term] += 1
+			if term in termCounts:
+				termCounts[term] += 1
 			else:
-				postingList[term] = 1
-		return postingList
+				termCounts[term] = 1
+		return termCounts
 
+	def removeStopWords(self, lexicon):
+		newTokens = []
+		for term in self.tokens:
+			if term not in lexicon:
+				newTokens.append(term)
+		self.tokens = newTokens
