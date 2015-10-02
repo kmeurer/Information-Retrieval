@@ -20,20 +20,15 @@ def indexDocuments(docStrArray, stopTerms):
 		# Convert document to class format
 		doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', documentString).group(1), documentString)
 		
-		doc.convertToLowerCase()
-		doc.removeMetadata()
-		doc.removeListInfo()
-		doc.removeTags()
-		
-		# Process special tokens
-		doc.processSpecialTerms()
-		
+		preprocessDocument(doc)
+
 		# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
 		if ENV.INDEX_TYPE == "INVERTED":
 			doc.tokenizeDocument()
 			doc.cleanTokens()
 			doc.removeStopWords(stopTerms)
 			docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
+
 
 		elif ENV.INDEX_TYPE == "POSITIONAL":
 			print "positional"
@@ -50,6 +45,14 @@ def indexDocuments(docStrArray, stopTerms):
 	if ENV.PROGRESS_BAR == True:
 		util.updateProgress(1)
 	print "\n"
+
+def preprocessDocument(doc):
+	doc.convertToLowerCase()
+	doc.removeMetadata()
+	doc.removeListInfo()
+	doc.removeTags()
+	# Process special tokens
+	doc.processSpecialTerms()
 
 def isValidPhrase(term1, term2):
 	if re.search('[\.\,\:\@\#]', term1) and "{" not in term1:

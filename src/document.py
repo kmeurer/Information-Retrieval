@@ -5,7 +5,7 @@ class Document:
 	def __init__(self, docId, text):
 		self.id = int(re.sub("\D", "", docId)) # stores as number for space efficiency
 		self.text = text
-		self.tokens = []
+		self.tokenizeDocument();
 
 	def addText(self, textStr):
 		self.text = self.text + " " + textStr
@@ -22,7 +22,7 @@ class Document:
 				term = re.sub('[\{\}]', '', term)
 				self.tokens[idx] = term
 			else:
-				term = re.sub('[\^\*\#\@\.\[\]\(\);]', '', term)
+				term = re.sub('[\^\*\#\@\.\[\]\(\);\"\']', '', term)
 				if term.isspace() or term == "":
 					continue
 				else:
