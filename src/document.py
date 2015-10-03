@@ -57,6 +57,18 @@ class Document:
 				termCounts[term] = 1
 		return termCounts
 
+	def extractTermPositionInformation(self):
+		if len(self.tokens) == 0:
+			self.tokenizeDocument();
+		termCounts = {} # in format {term: [count, [pos1, pos2, pos3]], term2: [count, [pos1, pos2, pos3]]}}
+		for idx, term in enumerate(self.tokens):
+			if term in termCounts:
+				termCounts[term][0] += 1
+				termCounts[term][1].append(idx)
+			else:
+				termCounts[term] = [1, [idx]]
+		return termCounts
+
 	def modifyExtraneousCharacters(self):
 		self.text = self.text.replace('&sect', '').replace('&blank', '').replace('&hyph', '-').replace('_', " ").replace('&amp', '')
 
