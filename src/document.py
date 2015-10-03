@@ -22,7 +22,7 @@ class Document:
 				term = re.sub('[\{\}]', '', term)
 				self.tokens[idx] = term
 			else:
-				term = re.sub('[\^\*\#\@\.\[\]\(\);\"\']', '', term)
+				term = re.sub('[\^\*#@\.,\[\]\(\);"\'`\:]', '', term)
 				if term.isspace() or term == "":
 					continue
 				else:
@@ -38,7 +38,7 @@ class Document:
 		self.text = re.sub('<.*?>', ' ', self.text)
 
 	def removeMetadata(self):
-		self.text = re.sub('<DOCNO>(.*)</DOCNO>|<PARENT>(.*)</PARENT>', '', self.text)
+		self.text = re.sub('<docno>(.*)</docno>|<parent>(.*)</parent>', '', self.text)
 
 	def removeListInfo(self):
 		self.text = re.sub('\(\d\)|\(\w\)|subpart\s\w', '', self.text)
@@ -58,7 +58,7 @@ class Document:
 		return termCounts
 
 	def modifyExtraneousCharacters(self):
-		self.text = self.text.replace('&sect;', '').replace('&blank;', '').replace('&hypn;', '-')
+		self.text = self.text.replace('&sect', '').replace('&blank', '').replace('&hyph', '-').replace('_', " ").replace('&amp', '')
 
 	def removeStopWords(self, lexicon):
 		newTokens = []

@@ -1,7 +1,6 @@
 import sys
 import os
 import re
-import glob
 sys.path.insert(0, 'src')
 
 import docProcessor as dp
@@ -24,7 +23,9 @@ for filename in os.listdir(ENV.DOCUMENT_SRC):
 	# split into distinct documents
 	documentStrArray = re.split('</DOC>', fileText)
 	idx.buildTempFiles(documentStrArray, stopTerms, termList)
-	# idx.mergeTempFiles()
+	
+idx.mergeTempFiles()
+idx.writeTermListToFile(termList)
 
 endTime = datetime.datetime.now()
 timeSpent = endTime - startTime

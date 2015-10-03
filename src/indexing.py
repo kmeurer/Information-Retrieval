@@ -39,7 +39,8 @@ def buildTempFiles(docStrArray, stopTerms, termL):
 					termList.append(term)
 					termIdx = len(termList) - 1
 				else:
-					termIdx = bisect.bisect_left(termList, term)
+					termIdx = termList.index(term)
+					
 				# add it to our existing posting list, in order thanks to bisect
 				bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term]))
 			if len(tripleList) >= ENV.MEMORY_MAXIMUM:
@@ -73,7 +74,7 @@ def preprocessDocument(doc):
 
 def writeTriplesToFile(tripleList):
 	indexFiles = os.listdir(ENV.INDEX_LOCATION)
-	fileName = "tempindex" + str(len(indexFiles)) + ".txt"
+	fileName = ENV.TEMP_FILE_NAME + str(len(indexFiles)) + ".txt"
 	indexFile = codecs.open(ENV.INDEX_LOCATION + fileName, 'w', 'utf-8') 	# specify utf-8 encoding
 	for triple in tripleList:
 		indexFile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
@@ -81,10 +82,67 @@ def writeTriplesToFile(tripleList):
 def writeTermListToFile(termList):
 	lexFile = codecs.open(ENV.INDEX_LOCATION + "lexicon.txt", 'w', 'utf-8') 	# specify utf-8 encoding
 	for idx, term in enumerate(termList):
-		lexFile.write(str(idx) + " " + term)
+		lexFile.write(str(idx) + " " + term + "\n")
 
-def mergeTripleFiles():
-	return True
+def mergeTempFiles():
+	while len(os.listdir(ENV.INDEX_LOCATION)) > 1:
+		indexFiles = os.listdir(ENV.INDEX_LOCATION)
+		mergeTripleLists(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + indexFiles[1])
+
+def mergeTripleLists(filePath1, filePath2):
+	file1 = codecs.open(filePath1, 'r', 'utf-8')
+	file2 = codecs.open(filePath2, 'r', 'utf-8')
+	mergeFile = codecs.open(ENV.INDEX_LOCATION + "templist.txt", 'w', 'utf-8')
+	line1 = file1.readline()
+	line1 = line1.split(" ")
+	line2 = file2.readline().split(" ")
+	while line1 != [''] and line2 != ['']:
+		line1[0] = int(line1[0])
+		line2[0] = int(line2[0])
+		if line1[0] < line2[0]:
+			mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
+			line1 = file1.readline().split(" ")
+		elif line1[0] > line2[0]:
+			mergeFile.write(str(line2[0]) + " " + str(line2[1]) + " " + str(line2[2]))
+			line2 = file2.readline().split(" ")
+		else:
+			line1[1] = int(line1[1])
+			line2[1] = int(line2[1])
+			if line1[1] < line2[1]:
+				mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
+				line1 = file1.readline().split(" ")
+			elif line1[1] > line2[1]:
+				mergeFile.write(str(line2[0]) + " " + str(line2[1]) + " " + str(line2[2]))
+				line2 = file2.readline().split(" ")
+			else:
+				line1[2] = int(line1[2])
+				line2[2] = int(line2[2])
+				if line1[2] < line2[2]:
+					mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
+					line1 = file1.readline().split(" ")
+				elif line1[2] > line2[2]:
+					mergeFile.write(str(line2[0]) + " " + str(line2[1]) + " " + str(line2[2]))
+					line2 = file2.readline().split(" ")
+				else:
+					mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
+					line1 = file1.readline().split(" ")
+	if line1 == ['']:
+		while line2 != ['']:
+			mergeFile.write(str(line2[0]) + " " + str(line2[1]) + " " + str(line2[2]))
+			line2 = file2.readline().split(" ")
+	elif line2 == ['']:
+		while line1 != ['']:
+			mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
+			line1 = file1.readline().split(" ")
+	file1.close()
+	file2.close()
+	mergeFile.close()
+	os.remove(filePath2)
+	os.remove(filePath1)
+	os.rename(ENV.INDEX_LOCATION + "templist.txt", filePath1)
+
+
+
 
 def isValidPhrase(term1, term2):
 	if re.search('[\.\,\:\@\#]', term1) and "{" not in term1:
