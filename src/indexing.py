@@ -12,56 +12,50 @@ def buildTempFiles(docStrArray, stopTerms, termL):
 	tripleList = [] 		# in format [(termId(from termList), docId, tf)]
 
 	# for each document, preprocess, writing to memory when the terms list exceeds the memory
-	print "\n\nPreprocessing Documents."
-	if ENV.PROGRESS_BAR == True:
-		util.updateProgress(0)
 	for idx, documentString in enumerate(docStrArray):
-		if ENV.PROGRESS_BAR == True:
-			util.updateProgress(float(idx) / float(len(docStrArray)))
-		# Ignore empty document tokens
-		if documentString.isspace() or documentString == "" :
-			continue
-		# Convert document to class format
-		doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', documentString).group(1), documentString)
-		
-		preprocessDocument(doc)
-
-		# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
-		if ENV.INDEX_TYPE == "INVERTED":
-			doc.tokenizeDocument()
-			doc.cleanTokens()
-			doc.removeStopWords(stopTerms)
-			docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
-			for term in docTermDictionary:
-				termIdx = None
-				# handle insertion into termList
-				if term not in termList:
-					termList.append(term)
-					termIdx = len(termList) - 1
-				else:
-					termIdx = termList.index(term)
-					
-				# add it to our existing posting list, in order thanks to bisect
-				bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term]))
-			if len(tripleList) >= ENV.MEMORY_MAXIMUM:
-				writeTriplesToFile(tripleList)
-				tripleList = []
-
-		elif ENV.INDEX_TYPE == "POSITIONAL":
-			print "positional"
-
-		elif ENV.INDEX_TYPE == "STEM":
-			print "stem"
-
-		elif ENV.INDEX_TYPE == "PHRASE":
-			print "phrase"
-
-		else:
-			print "Invalid index type specified in settings."
-			
+		processDocument(documentString, termList, tripleList, stopTerms)		
+	writeTriplesToFile(tripleList)
 	if ENV.PROGRESS_BAR == True:
 		util.updateProgress(1)
 	print "\n"
+
+def processDocument(docStr, termList, tripleList, stopTerms):
+	# Ignore empty document tokens
+	if docStr.isspace() or docStr == "" :
+		return None
+	# Convert document to class format
+	doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
+	preprocessDocument(doc)
+	# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
+	if ENV.INDEX_TYPE == "INVERTED":
+		doc.tokenizeDocument()
+		doc.cleanTokens()
+		doc.removeStopWords(stopTerms)
+		docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
+		for term in docTermDictionary:
+			termIdx = None
+			# handle insertion into termList
+			if term not in termList:
+				termList.append(term)
+				termIdx = len(termList) - 1
+			else:
+				termIdx = termList.index(term)
+			# add it to our existing posting list, in order thanks to bisect
+			bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term]))
+		if len(tripleList) >= ENV.MEMORY_MAXIMUM:
+			writeTriplesToFile(tripleList)
+
+	elif ENV.INDEX_TYPE == "POSITIONAL":
+		print "positional"
+
+	elif ENV.INDEX_TYPE == "STEM":
+		print "stem"
+
+	elif ENV.INDEX_TYPE == "PHRASE":
+		print "phrase"
+
+	else:
+		print "Invalid index type specified in settings."
 
 def preprocessDocument(doc):
 	doc.convertToLowerCase()
@@ -78,6 +72,7 @@ def writeTriplesToFile(tripleList):
 	indexFile = codecs.open(ENV.INDEX_LOCATION + fileName, 'w', 'utf-8') 	# specify utf-8 encoding
 	for triple in tripleList:
 		indexFile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
+	tripleList[:] = []
 
 def writeTermListToFile(termList):
 	lexFile = codecs.open(ENV.INDEX_LOCATION + "lexicon.txt", 'w', 'utf-8') 	# specify utf-8 encoding
@@ -88,6 +83,7 @@ def mergeTempFiles():
 	while len(os.listdir(ENV.INDEX_LOCATION)) > 1:
 		indexFiles = os.listdir(ENV.INDEX_LOCATION)
 		mergeTripleLists(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + indexFiles[1])
+	os.rename(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + ENV.TRIPLE_LIST_NAME + ".txt")
 
 def mergeTripleLists(filePath1, filePath2):
 	file1 = codecs.open(filePath1, 'r', 'utf-8')
@@ -141,7 +137,22 @@ def mergeTripleLists(filePath1, filePath2):
 	os.remove(filePath1)
 	os.rename(ENV.INDEX_LOCATION + "templist.txt", filePath1)
 
-
+def convertTriplesToPostings(triplePath, postingPath):
+	tripleFile = codecs.open(triplePath, 'r', 'utf-8')
+	postingFile = codecs.open(postingPath, 'w', 'utf-8')
+	currentLine = tripleFile.readline().replace('\n', '').split(" ")
+	currentTerm = currentLine[0]
+	newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
+	while currentLine != ['']:
+		currentLine = tripleFile.readline().replace('\n', '').split(" ")
+		if len(currentLine) < 3:
+			continue
+		if currentLine[0] != currentTerm:
+			postingFile.write(newLine + "\n")
+			currentTerm = currentLine[0]
+			newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
+		else:
+			newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ")"
 
 
 def isValidPhrase(term1, term2):

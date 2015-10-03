@@ -12,6 +12,8 @@ STOP_LIST_SRC = './data/stops.txt'
 # Relative path to directory to store index
 INDEX_LOCATION = './index/'
 TEMP_FILE_NAME = 'tempindex'
+TRIPLE_LIST_NAME = 'triplelist'
+POSTING_LIST_NAME = 'postinglist'
 
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
 INDEX_TYPE = "INVERTED"

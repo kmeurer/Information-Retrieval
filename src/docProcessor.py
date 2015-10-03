@@ -14,15 +14,15 @@ def extractStopTerms():
 	stopTermFile = codecs.open(ENV.STOP_LIST_SRC, 'rb', 'utf-8') 	# specify utf-8 encoding
 	lines = stopTermFile.readlines()
 	for line in lines:
-		stopTerms.append(re.sub("\n", "", line))
+		stopTerms.append(re.sub('\n', '', line))
 	return stopTerms
 
 def readDoc(fileSrc):
 	dataFile = codecs.open(fileSrc, 'rb', 'utf-8') 	# specify utf-8 encoding
 	lines = dataFile.readlines() 					# read all lines
-	fileStr = ""
+	fileStr = ''
 
-	print "\nUnpacking file: " + fileSrc
+	print '\nUnpacking file: ' + fileSrc
 	
 	if ENV.PROGRESS_BAR == True:
 		util.updateProgress(0)

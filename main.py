@@ -23,11 +23,12 @@ for filename in os.listdir(ENV.DOCUMENT_SRC):
 	# split into distinct documents
 	documentStrArray = re.split('</DOC>', fileText)
 	idx.buildTempFiles(documentStrArray, stopTerms, termList)
-	
+
 idx.mergeTempFiles()
 idx.writeTermListToFile(termList)
+idx.convertTriplesToPostings(ENV.INDEX_LOCATION + ENV.TRIPLE_LIST_NAME + '.txt', ENV.INDEX_LOCATION + ENV.POSTING_LIST_NAME + '.txt')
 
 endTime = datetime.datetime.now()
 timeSpent = endTime - startTime
 
-print "PROGRAM COMPLETED IN " + str(timeSpent.seconds) + " SECONDS\n\n\n--------------------------\n\n\n"
+print 'PROGRAM COMPLETED IN ' + str(timeSpent.seconds) + ' SECONDS\n\n\n--------------------------\n\n\n'
