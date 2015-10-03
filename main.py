@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import glob
 sys.path.insert(0, 'src')
 
 import docProcessor as dp
@@ -13,12 +14,17 @@ startTime = datetime.datetime.now()
 
 docFileNames = []
 stopTerms = dp.extractStopTerms()
+termList = []
+indexFiles = os.listdir(ENV.INDEX_LOCATION)
+for f in indexFiles:
+    os.remove(ENV.INDEX_LOCATION + f)
 
 for filename in os.listdir(ENV.DOCUMENT_SRC):
 	fileText = dp.extractDocuments(ENV.DOCUMENT_SRC + filename) # Extract information from our files.
 	# split into distinct documents
 	documentStrArray = re.split('</DOC>', fileText)
-	idx.indexDocuments(documentStrArray, stopTerms)
+	idx.buildTempFiles(documentStrArray, stopTerms, termList)
+	# idx.mergeTempFiles()
 
 endTime = datetime.datetime.now()
 timeSpent = endTime - startTime

@@ -57,6 +57,9 @@ class Document:
 				termCounts[term] = 1
 		return termCounts
 
+	def modifyExtraneousCharacters(self):
+		self.text = self.text.replace('&sect;', '').replace('&blank;', '').replace('&hypn;', '-')
+
 	def removeStopWords(self, lexicon):
 		newTokens = []
 		for term in self.tokens:

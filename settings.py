@@ -10,9 +10,10 @@ STOP_LIST_SRC = './data/stops.txt'
 
 # INDEX SETTINGS
 # Relative path to directory to store index
-INDEX_LOCATION = './index'
+INDEX_LOCATION = './index/'
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
 INDEX_TYPE = "INVERTED"
+MEMORY_MAXIMUM = 10000
 
 # PRE-PROCESSING SETTINGS
 INCLUDE_DECIMALS = True
