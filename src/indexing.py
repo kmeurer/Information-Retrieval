@@ -19,14 +19,7 @@ def buildTempFiles(docStrArray, stopTerms, termL):
 		util.updateProgress(1)
 	print "\n"
 
-def processDocument(docStr, termList, tripleList, stopTerms):
-	# Ignore empty document tokens
-	if docStr.isspace() or docStr == "" :
-		return None
-	# Convert document to class format
-	doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
-	preprocessDocument(doc)
-	# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
+def indexDocument(doc, termList, tripleList, stopTerms):
 	if ENV.INDEX_TYPE == "INVERTED":
 		doc.tokenizeDocument()
 		doc.cleanTokens()
