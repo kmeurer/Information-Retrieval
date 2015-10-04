@@ -31,4 +31,4 @@ POSTING_LIST_NAME = 'postinglist'
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
 INDEX_TYPE = "INVERTED"
 # Maximum memory for triple list, measured in number of triples
-MEMORY_MAXIMUM = 10000
+MEMORY_MAXIMUM = 1000
