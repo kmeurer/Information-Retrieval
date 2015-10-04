@@ -29,6 +29,6 @@ TRIPLE_LIST_NAME = 'triplelist'
 # base name for posting list files
 POSTING_LIST_NAME = 'postinglist'
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
-INDEX_TYPE = "POSITIONAL"
+INDEX_TYPE = "INVERTED"
 # Maximum memory for triple list, measured in number of triples
-MEMORY_MAXIMUM = 1000
+MEMORY_MAXIMUM = 10000

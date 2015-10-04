@@ -1,5 +1,6 @@
 import re
 import specialTokenHandler as sth
+import nltk.stem.porter as ps
 
 class Document:
 	def __init__(self, docId, text):
@@ -71,6 +72,11 @@ class Document:
 
 	def modifyExtraneousCharacters(self):
 		self.text = self.text.replace('&sect', '').replace('&blank', '').replace('&hyph', '-').replace('_', " ").replace('&amp', '')
+
+	def stemTerms(self):
+		pStem = ps.PorterStemmer()
+		for idx, term in enumerate(self.tokens):
+			self.tokens[idx] = pStem.stem(term)
 
 	def removeStopWords(self, lexicon):
 		newTokens = []

@@ -7,44 +7,42 @@ import settings as ENV
 import bisect
 import document as d
 
-def indexDocument(doc, termList, tripleList, stopTerms):
+def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 	if ENV.INDEX_TYPE == "INVERTED":
-		doc.tokenizeDocument()
 		doc.cleanTokens()
-		doc.removeStopWords(stopTerms)
+		if ENV.REMOVE_STOP_WORDS == True:
+			doc.removeStopWords(stopTerms)
 		docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
 		for term in docTermDictionary:
-			termIdx = None
-			# handle insertion into termList
-			if term not in termList:
-				termList.append(term)
-				termIdx = len(termList) - 1
-			else:
-				termIdx = termList.index(term)
+			termIdx = addTermToTermList(term, termList, dfList)
 			# add it to our existing posting list, in order thanks to bisect
 			bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term]))
-		if len(tripleList) >= ENV.MEMORY_MAXIMUM:
+		if len(tripleList) >= ENV.MEMORY_MAXIMUM or ENV.MEMORY_MAXIMUM == None:
 			writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "POSITIONAL":
-		doc.tokenizeDocument()
 		doc.cleanTokens()
 		docTermDictionary = doc.extractTermPositionInformation() # in format {term: [count, [pos1, pos2, pos3]], term2: [count, [pos1, pos2, pos3]]}}
 		for term in docTermDictionary:
-			termIdx = None
-			# handle insertion into termList
-			if term not in termList:
-				termList.append(term)
-				termIdx = len(termList) - 1
-			else:
-				termIdx = termList.index(term)
+			termIdx = addTermToTermList(term, termList, dfList)
 			# add it to our existing posting list, in order thanks to bisect
 			bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term][0], docTermDictionary[term][1]))
-		if len(tripleList) >= ENV.MEMORY_MAXIMUM:
+		if len(tripleList) >= ENV.MEMORY_MAXIMUM or ENV.MEMORY_MAXIMUM == None:
 			writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "STEM":
-		print "stem"
+		doc.cleanTokens()
+		if ENV.REMOVE_STOP_WORDS == True:
+			doc.removeStopWords(stopTerms)
+		# Stem our document terms
+		doc.stemTerms()
+		docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
+		for term in docTermDictionary:
+			termIdx = addTermToTermList(term, termList, dfList)
+			# add it to our existing posting list, in order thanks to bisect
+			bisect.insort(tripleList, (termIdx, doc.getDocId(), docTermDictionary[term]))
+		if len(tripleList) >= ENV.MEMORY_MAXIMUM or ENV.MEMORY_MAXIMUM == None:
+			writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "PHRASE":
 		print "phrase"
@@ -52,14 +50,17 @@ def indexDocument(doc, termList, tripleList, stopTerms):
 	else:
 		print "Invalid index type specified in settings."
 
-def preprocessDocument(doc):
-	doc.convertToLowerCase()
-	doc.removeMetadata()
-	doc.removeListInfo()
-	doc.removeTags()
-	doc.modifyExtraneousCharacters()
-	# Process special tokens
-	doc.processSpecialTerms()
+def addTermToTermList(term, termList, dfList):
+	termIdx = None
+	# handle insertion into termList
+	if term not in termList:
+		termList.append(term)
+		termIdx = len(termList) - 1
+		dfList.append(1)
+	else:
+		termIdx = termList.index(term)
+		dfList[termIdx] += 1
+	return termIdx
 
 def writeTriplesToFile(tripleList):
 	indexFiles = os.listdir(ENV.INDEX_LOCATION)
@@ -72,10 +73,11 @@ def writeTriplesToFile(tripleList):
 			indexFile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
 	tripleList[:] = []
 
-def writeTermListToFile(termList):
+def writeTermListToFile(termList, dfList):
 	lexFile = codecs.open(ENV.INDEX_LOCATION + "lexicon.txt", 'w', 'utf-8') 	# specify utf-8 encoding
 	for idx, term in enumerate(termList):
-		lexFile.write(str(idx) + " " + term + "\n")
+		lexFile.write(str(idx) + " " + term + " " + str(dfList[idx]) + "\n")
+
 
 def mergeTempFiles():
 	while len(os.listdir(ENV.INDEX_LOCATION)) > 1:
@@ -188,11 +190,9 @@ def convertTriplesToPostings(triplePath, postingPath):
 				newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
 		else:
 			if ENV.INDEX_TYPE == "POSITIONAL":
-				newLine = "->(" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
+				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 			else:
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ")"
-
-
 
 def isValidPhrase(term1, term2):
 	if re.search('[\.\,\:\@\#]', term1) and "{" not in term1:
