@@ -45,7 +45,14 @@ def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 			writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "PHRASE":
-		print "phrase"
+		phraseTermDictionary  = doc.extractValidPhrases(stopTerms)
+		for phrase in phraseTermDictionary:
+			termIdx = addTermToTermList(phrase, termList, dfList)
+			# add it to our existing posting list, in order thanks to bisect
+			bisect.insort(tripleList, (termIdx, doc.getDocId(), phraseTermDictionary[phrase]))
+		if len(tripleList) >= ENV.MEMORY_MAXIMUM or ENV.MEMORY_MAXIMUM == None:
+			writeTriplesToFile(tripleList)
+
 
 	else:
 		print "Invalid index type specified in settings."
@@ -64,7 +71,7 @@ def addTermToTermList(term, termList, dfList):
 
 def writeTriplesToFile(tripleList):
 	indexFiles = os.listdir(ENV.INDEX_LOCATION)
-	fileName = ENV.TEMP_FILE_NAME + str(len(indexFiles)) + ".txt"
+	fileName = ENV.INDEX_TYPE.lower() + ENV.TEMP_FILE_NAME + str(len(indexFiles)) + ".txt"
 	indexFile = codecs.open(ENV.INDEX_LOCATION + fileName, 'w', 'utf-8') 	# specify utf-8 encoding
 	for triple in tripleList:
 		if ENV.INDEX_TYPE == "POSITIONAL":
@@ -74,16 +81,18 @@ def writeTriplesToFile(tripleList):
 	tripleList[:] = []
 
 def writeTermListToFile(termList, dfList):
-	lexFile = codecs.open(ENV.INDEX_LOCATION + "lexicon.txt", 'w', 'utf-8') 	# specify utf-8 encoding
+	lexFile = codecs.open(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "lexicon.txt", 'w', 'utf-8') 	# specify utf-8 encoding
 	for idx, term in enumerate(termList):
 		lexFile.write(str(idx) + " " + term + " " + str(dfList[idx]) + "\n")
 
 
 def mergeTempFiles():
-	while len(os.listdir(ENV.INDEX_LOCATION)) > 1:
-		indexFiles = os.listdir(ENV.INDEX_LOCATION)
+	while len([fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]) > 1:
+		indexFiles = [fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]
 		mergeTripleLists(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + indexFiles[1])
-	os.rename(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + ENV.TRIPLE_LIST_NAME + ".txt")
+	indexFiles = [fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]
+	print indexFiles
+	os.rename(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + ".txt")
 
 def mergeTripleLists(filePath1, filePath2):
 	file1 = codecs.open(filePath1, 'r', 'utf-8')
@@ -193,9 +202,3 @@ def convertTriplesToPostings(triplePath, postingPath):
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 			else:
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ")"
-
-def isValidPhrase(term1, term2):
-	if re.search('[\.\,\:\@\#]', term1) and "{" not in term1:
-		return False
-	else:
-		return True
