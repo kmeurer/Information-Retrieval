@@ -8,6 +8,7 @@ def processSpecialTokens(docStr):
 	docStr = processDates(docStr)
 	docTerms = re.split('\s*', docStr)
 	newTerms = []
+	
 	# For each term, determine if it is a special term
 	for term in docTerms:
 		if term.isspace() or term == '':
@@ -141,7 +142,7 @@ def processAlphabetDigit(docTerm):
 
 # processing of digit-alphabet (ex: "1-hour"->"1hour" and "hour")
 def isDigitAlphabet(docTerm):
-	if re.match('\d+-\w+', docTerm):
+	if re.match(r'\d+-\w+', docTerm):
 		return True
 	return False
 
@@ -154,7 +155,7 @@ def processDigitAlphabet(docTerm):
 
 # processing of prefixed terms (ex: "pre-processing"->"preprocessing" and "processing", "part-of-speech"->"partofspeech" and "part" and "speech")
 def isPrefixedTerm(docTerm):
-	if re.match('\w*-\w*|\w*-\w*-\w*|\w*-\w*-\w*-\w*', docTerm):
+	if re.match(r'\w*-\w*|\w*-\w*-\w*|\w*-\w*-\w*-\w*', docTerm):
 		return True
 	return False
 
@@ -197,7 +198,7 @@ def processEmailAddress(docTerm):
 
 # processing of IP addresses (ex: "73.172.16.182"->"{73.172.16.182}")
 def isIPAddress(docTerm):
-	if re.match('\d{2,3}\.\d{2,3}\.\d{2,3}\.\d{2,3}', docTerm):
+	if re.match(r'\b\d{2,3}\.\d{2,3}\.\d{2,3}\.\d{2,3}\b', docTerm):
 		return True
 	return False
 

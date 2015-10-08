@@ -10,8 +10,9 @@ DOCUMENT_SRC = './data/BigSample/'
 STOP_LIST_SRC = './data/stops.txt'
 
 # PRE-PROCESSING SETTINGS
-# Whether or not to include decimals
+# Whether or not to include decimals in tokens or simply round
 INCLUDE_DECIMALS = True
+# Whether or not to remove stop words in preprocessing (Note: the positional index never removes stop words)
 REMOVE_STOP_WORDS = True
 # Prefix, suffix, and domain lists
 PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 'ex', 'homo', 'hetero', 'hyper', 'in', 'inter', 'intra', 'mono', 'non', 'micro', 'macro', 'pre', 'post', 're', 'trans', 'tri', 'un', 'uni']
@@ -20,17 +21,19 @@ FILE_EXTENSION_LIST = ['.pdf', '.html', '.doc', '.docx', '.css', '.ppt', '.py', 
 
 
 # INDEXING SETTINGS
-# Relative path to index directory
+# Relative path to index directory (always use trailing slash)
 INDEX_LOCATION = './index/'
 # base name for temp files
-TEMP_FILE_NAME = 'tempindex'
+TEMP_FILE_NAME = 'TempIndex'
 # base name for triple list files
-TRIPLE_LIST_NAME = 'triplelist'
+TRIPLE_LIST_NAME = 'TripleList'
 # base name for posting list files
-POSTING_LIST_NAME = 'postinglist'
+POSTING_LIST_NAME = 'PostingList'
 # Build all indexes option.  If set to True, will build each index type
 BUILD_ALL_INDEXES = True
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
-INDEX_TYPE = "INVERTED"
-# Maximum memory for triple list, measured in number of triples
-MEMORY_MAXIMUM = 10000
+INDEX_TYPE = "STEM"
+# (optional) Set a minimum term frequency for the phrase index (as phrases that occur just once per document aren't phrases)
+MIN_PHRASE_TF = 2
+# Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)
+MEMORY_MAXIMUM = 100000

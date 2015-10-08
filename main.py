@@ -3,16 +3,16 @@ import os
 import codecs
 import re
 import datetime
-sys.path.insert(0, 'src')
+import tabulate as tab
+import numpy as np
 
+sys.path.insert(0, 'src')
 import docProcessor as dp
 import utils as util
 import settings as ENV
 import indexing as idx
-import numpy as np
 import document as d
-import tabulate as tb
-
+import tripleBuilder as tb
 
 termList = []
 dfList = []
@@ -33,10 +33,10 @@ for f in indexFiles:
     os.remove(ENV.INDEX_LOCATION + f)
 
 
-for type in indexTypes:
+for idxType in indexTypes:
 	startTime = datetime.datetime.now()
-	ENV.INDEX_TYPE = type
-	print "\n------------\nBuilding " + type.lower() + " index:"
+	ENV.INDEX_TYPE = idxType
+	print "\n------------\nBuilding " + idxType.lower() + " index:"
 	termList[:] = []		# able to be stored in memory
 	dfList[:] = []			# companion to term list of df
 	tripleList[:] = []		# max length specified by memory constrain specified in settings.py
@@ -65,16 +65,17 @@ for type in indexTypes:
 			currentLine = dataFile.readline()
 
 	# write remaining triples to a file
-	idx.writeTriplesToFile(tripleList)
+	tb.writeTriplesToFile(tripleList)
 	# merge our remaining temporary files
 	print "\n------------\n\nTemporary Triples Built.  Beginning Merge...\n"
 	mergeStart = datetime.datetime.now()
-	idx.mergeTempFiles()
+	tb.mergeTempFiles()
 	# convert our triples to a posting list
-	idx.convertTriplesToPostings(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + '.txt', ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.POSTING_LIST_NAME + '.txt')
+	tb.convertTriplesToPostings(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + '.txt', ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.POSTING_LIST_NAME + '.txt')
 	mergeEnd = datetime.datetime.now()
 	mergeTime = mergeEnd - mergeStart
 	print "\nMerge Completed in " + str(mergeTime.seconds) + " second(s)."
+
 	# write the term list to a file called lexicon.txt
 	idx.writeTermListToFile(termList, dfList)
 
@@ -87,12 +88,13 @@ for type in indexTypes:
 	else:
 		print "\n------------\n\nRuntine with no memory maximum."
 
-	print tb.tabulate([[str(tripleTime.seconds) + " seconds", str(mergeTime.seconds) + " seconds", str(totalTime.seconds) + " seconds"]], ["Time to build triples", "Time to merge files.", "Total Time"], tablefmt="fancy_grid")
-
+	print tab.tabulate([[str(tripleTime.seconds) + " seconds", str(mergeTime.seconds) + " seconds", str(totalTime.seconds) + " seconds"]], ["Time to build triples", "Time to merge files.", "Total Time"], tablefmt="fancy_grid")
 	print "\nLexicon and Posting List Statistics for " + ENV.INDEX_TYPE.lower() + " index."
-	print tb.tabulate([[ENV.INDEX_TYPE.lower(), str(len(termList)), os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "lexicon.txt") + os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "postinglist.txt"), np.max(dfList), np.min(dfList), np.mean(dfList), np.median(dfList)]],["Index Type", "Lexicon (#of terms)", "Index size Lexicon+PL(byte)", "Max df", "Min df", "Mean df", "Median df"], tablefmt="fancy_grid")
+	print tab.tabulate([[ENV.INDEX_TYPE.lower(), str(len(termList)), os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "lexicon.txt") + os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "postinglist.txt"), np.max(dfList), np.min(dfList), np.mean(dfList), np.median(dfList)]],["Index Type", "Lexicon (#of terms)", "Index size Lexicon+PL(byte)", "Max df", "Min df", "Mean df", "Median df"], tablefmt="fancy_grid")
+	
 	runStats[ENV.INDEX_TYPE] = [ENV.INDEX_TYPE.lower(), str(len(termList)), os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "lexicon.txt") + os.path.getsize(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + "postinglist.txt"), np.max(dfList), np.min(dfList), np.mean(dfList), np.median(dfList)]
 	timeStats[ENV.INDEX_TYPE] = [ENV.INDEX_TYPE.lower(), str(tripleTime.seconds) + " seconds", str(mergeTime.seconds) + " seconds", str(totalTime.seconds) + " seconds"]
+	
 	print "Indexed " + str(totalDocCount) + " documents"
 
 runTimes = []
@@ -101,7 +103,8 @@ for type in timeStats:
 dfStats = []
 for type in runStats:
 	dfStats.append(runStats[type])
+
 print "\n------------\n\nTotal runtime stats by index.  All results for a memory maximum of " + str(ENV.MEMORY_MAXIMUM) + "."
-print tb.tabulate(runTimes, ["Index Type", "Time to build triples", "Time to merge files.", "Total Time"], tablefmt="fancy_grid")
+print tab.tabulate(runTimes, ["Index Type", "Time to build triples", "Time to merge files.", "Total Time"], tablefmt="fancy_grid")
 print "Total Document Frequency (df) stats across indexes generated.  Memory Maximum: " + str(ENV.MEMORY_MAXIMUM) + "."
-print tb.tabulate(dfStats,["Index Type", "Lexicon (#of terms)", "Index size Lexicon+PL(byte)", "Max df", "Min df", "Mean df", "Median df"], tablefmt="fancy_grid")
+print tab.tabulate(dfStats,["Index Type", "Lexicon (#of terms)", "Index size Lexicon+PL(byte)", "Max df", "Min df", "Mean df", "Median df"], tablefmt="fancy_grid")

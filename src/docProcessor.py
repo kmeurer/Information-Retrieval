@@ -19,8 +19,7 @@ def processDocument(docStr):
 	if docStr.isspace() or docStr == "" :
 		return None
 	# Convert document to class format
-	doc = d.Document(re.search(
-		'<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
+	doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
 	preprocessDocument(doc)
 	# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
 	return doc
