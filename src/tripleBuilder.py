@@ -107,15 +107,19 @@ def mergeTripleLists(filePath1, filePath2):
 	os.remove(filePath1)
 	os.rename(ENV.INDEX_LOCATION + "templist.txt", filePath1)
 
+# tripleWrite: Basic file writing for triples in the form of: "part1 part2 part3"
 def tripleWrite(fileName, lineArr):
 	fileName.write(str(lineArr[0]) + " " + str(lineArr[1]) + " " + str(lineArr[2]))
 
+# quadrupleWrite: Basic file writing for triples in the form of: "part1 part2 part3 part4" -- used for positional index
 def quadrupleWrite(fileName, lineArr):
 	fileName.write(str(lineArr[0]) + " " + str(lineArr[1]) + " " + str(lineArr[2]) + " " + str(lineArr[3]))	
 
-
+# convertTriplesToPostings: convert the full triple list to a posting list
 def convertTriplesToPostings(triplePath, postingPath):
+	# open the triples file
 	tripleFile = codecs.open(triplePath, 'r', 'utf-8')
+	# create a posting file
 	postingFile = codecs.open(postingPath, 'w', 'utf-8')
 	currentLine = tripleFile.readline().replace('\n', '').split(" ")
 	currentTerm = currentLine[0]
@@ -123,7 +127,9 @@ def convertTriplesToPostings(triplePath, postingPath):
 		newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 	else:
 		newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
+	# while more triples remain...
 	while currentLine != ['']:
+		# if the term index has changed
 		if currentLine[0] != currentTerm:
 			postingFile.write(newLine + "\n")
 			currentTerm = currentLine[0]
@@ -131,11 +137,13 @@ def convertTriplesToPostings(triplePath, postingPath):
 				newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 			else:
 				newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
+		# otherwise, add an arrow to the next option
 		else:
 			if ENV.INDEX_TYPE == "POSITIONAL":
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 			else:
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ")"
 		currentLine = tripleFile.readline().replace('\n', '').split(" ")
+	# add the last element
 	if len(newLine) > 0:
 		postingFile.write(newLine + "\n")
