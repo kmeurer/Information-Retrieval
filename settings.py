@@ -30,9 +30,9 @@ TRIPLE_LIST_NAME = 'TripleList'
 # base name for posting list files
 POSTING_LIST_NAME = 'PostingList'
 # Build all indexes option.  If set to True, will build each index type
-BUILD_ALL_INDEXES = True
+BUILD_ALL_INDEXES = False
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
-INDEX_TYPE = "STEM"
+INDEX_TYPE = "PHRASE"
 # (optional) Set a minimum term frequency for the phrase index (as phrases that occur just once per document aren't phrases)
 MIN_PHRASE_TF = 2
 # Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)

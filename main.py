@@ -1,3 +1,5 @@
+# MAIN FILE:  This is the main entry point for the project, which defers to other files for functionality.
+
 import sys
 import os
 import codecs
@@ -32,43 +34,47 @@ indexFiles = os.listdir(ENV.INDEX_LOCATION)
 for f in indexFiles:
     os.remove(ENV.INDEX_LOCATION + f)
 
-
+# For every index type we wish to create...
 for idxType in indexTypes:
-	startTime = datetime.datetime.now()
+	startTime = datetime.datetime.now()	# record start time
 	ENV.INDEX_TYPE = idxType
 	print "\n------------\nBuilding " + idxType.lower() + " index:"
 	termList[:] = []		# able to be stored in memory
 	dfList[:] = []			# companion to term list of df
 	tripleList[:] = []		# max length specified by memory constrain specified in settings.py
 
+	totalDocCount = 0 # for counting processed documents
 	# for each file in the specified directory, extract and index documents
-	totalDocCount = 0
 	for filename in os.listdir(ENV.DOCUMENT_SRC):
-		fileSrc = ENV.DOCUMENT_SRC + filename
+		fileSrc = ENV.DOCUMENT_SRC + filename # set the file source
 		print "\n------------\nProcessing documents included in " + fileSrc + "\n"
-		dataFile = codecs.open(fileSrc, 'rb', 'utf-8') 	# specify utf-8 encoding
+		dataFile = codecs.open(fileSrc, 'rb', 'utf-8') 	# open our data file
 		currentLine = dataFile.readline()
 		count = 1
+		# while there is still information left in the file...
 		while currentLine != '':
+			# test if we have found a document
 			if '<DOC>' in currentLine:
 				sys.stdout.write("Processed " + str(count) + " documents...\r")
 				count += 1
 				totalDocCount += 1
 				docStr = ""
 				currentLine = dataFile.readline()
+				# terminate when we reach the closing tag
 				while '</DOC>' not in currentLine:
 					docStr += currentLine
 					currentLine = dataFile.readline()
+				# MAIN ENTRY POINT FOR PREPROCESSING
 				doc = dp.processDocument(docStr)
-				# Pass indexing to our index function, which will triage based on the index specified in settings
+				# MAIN ENTRY POINT FOR INDEXING
 				idx.indexDocument(doc, termList, dfList, tripleList, stopTerms)
 			currentLine = dataFile.readline()
 
 	# write remaining triples to a file
 	tb.writeTriplesToFile(tripleList)
-	# merge our remaining temporary files
 	print "\n------------\n\nTemporary Triples Built.  Beginning Merge...\n"
 	mergeStart = datetime.datetime.now()
+	# merge our remaining temporary files
 	tb.mergeTempFiles()
 	# convert our triples to a posting list
 	tb.convertTriplesToPostings(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + '.txt', ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.POSTING_LIST_NAME + '.txt')
@@ -97,6 +103,7 @@ for idxType in indexTypes:
 	
 	print "Indexed " + str(totalDocCount) + " documents"
 
+# Generate statistics for runtime and document frequencies
 runTimes = []
 for type in timeStats:
 	runTimes.append(timeStats[type])

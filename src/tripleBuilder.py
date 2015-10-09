@@ -4,6 +4,7 @@ import codecs
 import utils as util
 import settings as ENV
 
+# writeTriplesToFile: Write the full list of triples to a new file in the format "termId docId termFrequency"
 def writeTriplesToFile(tripleList):
 	indexFiles = os.listdir(ENV.INDEX_LOCATION)
 	fileName = ENV.INDEX_TYPE.lower() + ENV.TEMP_FILE_NAME + str(len(indexFiles)) + ".txt"
@@ -15,6 +16,7 @@ def writeTriplesToFile(tripleList):
 			indexFile.write(str(triple[0]) + " " + str(triple[1]) + " " + str(triple[2]) + "\n")
 	tripleList[:] = []
 
+# mergeTempFiles: Merges all temp files related to the current index that currently exist in the index directory
 def mergeTempFiles():
 	while len([fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]) > 1:
 		indexFiles = [fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]
@@ -22,23 +24,28 @@ def mergeTempFiles():
 	indexFiles = [fileName for fileName in os.listdir(ENV.INDEX_LOCATION) if ENV.INDEX_TYPE.lower() in fileName]
 	os.rename(ENV.INDEX_LOCATION + indexFiles[0], ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + ".txt")
 
+# mergeTripleLists:  Merges two triple lists defined by the two parameters
 def mergeTripleLists(filePath1, filePath2):
+	# open both files
 	file1 = codecs.open(filePath1, 'r', 'utf-8')
 	file2 = codecs.open(filePath2, 'r', 'utf-8')
+	# create a temp file to dump both files in
 	mergeFile = codecs.open(ENV.INDEX_LOCATION + "templist.txt", 'w', 'utf-8')
-	line1 = file1.readline()
-	line1 = line1.split(" ")
+	# split the first two lines
+	line1 = file1.readline().split(" ")
 	line2 = file2.readline().split(" ")
+	# while we have not reached the end of either file
 	while line1 != [''] and line2 != ['']:
+		# convert the termID to an int
 		line1[0] = int(line1[0])
 		line2[0] = int(line2[0])
-		if line1[0] < line2[0]:
+		if line1[0] < line2[0]:	# if lower termID in file1
 			if ENV.INDEX_TYPE == "POSITIONAL":
 				quadrupleWrite(mergeFile, line1)
 			else:
 				tripleWrite(mergeFile, line1)
 			line1 = file1.readline().split(" ")
-		elif line1[0] > line2[0]:
+		elif line1[0] > line2[0]: # if lower term ID in file2
 			if ENV.INDEX_TYPE == "POSITIONAL":
 				quadrupleWrite(mergeFile, line2)
 			else:
@@ -80,6 +87,7 @@ def mergeTripleLists(filePath1, filePath2):
 					else:
 						tripleWrite(mergeFile, line1)
 					line1 = file1.readline().split(" ")
+	# if line1 has already ended...
 	if line1 == ['']:
 		while line2 != ['']:
 			if ENV.INDEX_TYPE == "POSITIONAL":
@@ -87,6 +95,7 @@ def mergeTripleLists(filePath1, filePath2):
 			else:
 				tripleWrite(mergeFile, line2)
 			line2 = file2.readline().split(" ")
+	# if line2 has already ended
 	elif line2 == ['']:
 		while line1 != ['']:
 			mergeFile.write(str(line1[0]) + " " + str(line1[1]) + " " + str(line1[2]))
@@ -115,9 +124,6 @@ def convertTriplesToPostings(triplePath, postingPath):
 	else:
 		newLine = currentTerm + ": (" + currentLine[1] + ", " + currentLine[2] + ")"
 	while currentLine != ['']:
-		currentLine = tripleFile.readline().replace('\n', '').split(" ")
-		if len(currentLine) < 3:
-			continue
 		if currentLine[0] != currentTerm:
 			postingFile.write(newLine + "\n")
 			currentTerm = currentLine[0]
@@ -130,3 +136,6 @@ def convertTriplesToPostings(triplePath, postingPath):
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ", " + currentLine[3] + ")"
 			else:
 				newLine += "->(" + currentLine[1] + ", " + currentLine[2] + ")"
+		currentLine = tripleFile.readline().replace('\n', '').split(" ")
+	if len(newLine) > 0:
+		postingFile.write(newLine + "\n")
