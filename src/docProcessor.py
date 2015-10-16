@@ -14,6 +14,15 @@ def extractStopTerms():
 		stopTerms.append(re.sub('\n', '', line))
 	return stopTerms
 
+# Pull relevant information from query file, including title, num, and description
+def extractQueryInformation():
+	return {}
+
+# return a list of all query titles
+def extractQueries(queryData):
+	return []
+
+
 def processDocument(docStr):
 	# Ignore empty document tokens
 	if docStr.isspace() or docStr == "" :

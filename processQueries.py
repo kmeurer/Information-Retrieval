@@ -20,7 +20,8 @@ import tripleBuilder as tb
 
 results = {}
 # load queries into memory as query objects
-queryList = dp.extractQueries()
+queryData = dp.extractQueryInformation()
+queryList = dp.extractQueries(queryData)
 
 # for each query we have extracted
 for query in queryList:
@@ -29,4 +30,8 @@ for query in queryList:
 
 	relevantDocs = qp.findRelevantDocuments()
 	relevanceRanking = rankDocumentRelevance(relevantDocs)
-	results[query.getcalculateMap(relevanceRanking)
+	# Calculate benchmarks based on our data
+	results[query.getId()] = calculateStats(relevanceRanking, annotatedResults)
+
+
+
