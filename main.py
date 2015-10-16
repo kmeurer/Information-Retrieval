@@ -81,7 +81,9 @@ for idxType in indexTypes:
 	mergeEnd = datetime.datetime.now()
 	mergeTime = mergeEnd - mergeStart
 	print "\nMerge Completed in " + str(mergeTime.seconds) + " second(s)."
-
+	# delete triple list unless keep triples list is set to true
+	if ENV.KEEP_TRIPLES_LIST != True:
+		os.remove(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + '.txt')
 	# write the term list to a file called lexicon.txt
 	idx.writeTermListToFile(termList, dfList)
 
