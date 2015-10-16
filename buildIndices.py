@@ -1,4 +1,4 @@
-# MAIN FILE:  This is the main entry point for the project, which defers to other files for functionality.
+# MAIN FILE:  This is the main entry point for the index creation, which defers to other files for functionality.
 
 import sys
 import os

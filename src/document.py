@@ -2,7 +2,7 @@ import re
 import specialTokenHandler as sth
 import nltk.stem.porter as ps
 
-class Document:
+class Document(object):
 	def __init__(self, docId, text):
 		self.id = int(re.sub("\D", "", docId)) # stores as number for space efficiency
 		self.text = text

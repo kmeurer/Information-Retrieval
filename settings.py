@@ -6,6 +6,8 @@ PROGRESS_BAR = True
 # FUNCTIONAL SETTINGS
 # Source directory for documents to be indexed (always use trailing slash)
 DOCUMENT_SRC = './data/BigSample/'
+# File location for queries to be tested
+QUERY_SRC = './data/QueryFile/queryfile.txt'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
@@ -39,3 +41,8 @@ KEEP_TRIPLES_LIST = False
 MIN_PHRASE_TF = 2
 # Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)
 MEMORY_MAXIMUM = 100000
+
+# QUERY PROCESSING SETTINGS
+# Relevance Ranking Option.  Valid types are: "BM25", "VECTOR", "LANGUAGE"
+DOCUMENT_RANKING_METHOD = "VECTOR"
+
