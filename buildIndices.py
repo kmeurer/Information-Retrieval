@@ -67,7 +67,7 @@ for idxType in indexTypes:
 					docStr += currentLine
 					currentLine = dataFile.readline()
 				# MAIN ENTRY POINT FOR PREPROCESSING
-				doc = dp.processDocument(docStr)
+				doc = dp.processDocument(docStr, stopTerms)
 				# MAIN ENTRY POINT FOR INDEXING
 				idx.indexDocument(doc, termList, dfList, tripleList, stopTerms)
 				documentList.append([doc.getDocId(), len(doc.tokens)])

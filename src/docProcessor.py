@@ -48,22 +48,12 @@ def writeDocListToFile(docList):
 	for doc in docList:
 		docFile.write(str(doc[0]) + " " + str(doc[1]) + "\n")
 
-def processDocument(docStr):
+def processDocument(docStr, stopTerms):
 	# Ignore empty document tokens
 	if docStr.isspace() or docStr == "" :
 		return None
 	# Convert document to class format
 	doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
-	preprocessDocument(doc)
+	doc.preprocessText(stopTerms)
 	# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
 	return doc
-
-def preprocessDocument(doc):
-	doc.convertToLowerCase()
-	doc.removeMetadata()
-	doc.removeListInfo()
-	doc.removeTags()
-	doc.modifyExtraneousCharacters()
-	# Process special tokens
-	doc.processSpecialTerms()
-	doc.tokenizeDocument()

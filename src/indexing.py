@@ -10,7 +10,6 @@ import tripleBuilder as tb
 def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 	# Depending on the index type, process in slightly different ways
 	if ENV.INDEX_TYPE == "INVERTED":
-		doc.cleanTokens()	# clean all tokens
 		if ENV.REMOVE_STOP_WORDS == True:
 			doc.removeStopWords(stopTerms)
 		docTermDictionary = doc.extractTermInformation() # comes in form of {term: tf}
@@ -23,7 +22,6 @@ def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 			tb.writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "POSITIONAL":
-		doc.cleanTokens()
 		docTermDictionary = doc.extractTermPositionInformation() # in format {term: [count, [pos1, pos2, pos3]], term2: [count, [pos1, pos2, pos3]]}}
 		# for every term and its position included in the document...
 		for term in docTermDictionary:
@@ -34,7 +32,6 @@ def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 			tb.writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "STEM":
-		doc.cleanTokens()
 		if ENV.REMOVE_STOP_WORDS == True:
 			doc.removeStopWords(stopTerms)
 		# Stem our document terms
@@ -48,7 +45,7 @@ def indexDocument(doc, termList, dfList, tripleList, stopTerms):
 			tb.writeTriplesToFile(tripleList)
 
 	elif ENV.INDEX_TYPE == "PHRASE":
-		phraseTermDictionary  = doc.extractValidPhrases(stopTerms)
+		phraseTermDictionary = doc.getPhraseCounts()
 		for phrase in phraseTermDictionary:
 			termIdx = addPhraseToTermList(phrase, phraseTermDictionary[phrase], termList, dfList)
 			# add it to our existing posting list, in order thanks to bisect

@@ -16,6 +16,8 @@ STOP_LIST_SRC = './data/stops.txt'
 INCLUDE_DECIMALS = True
 # Whether or not to remove stop words in preprocessing (Note: the positional index never removes stop words)
 REMOVE_STOP_WORDS = True
+# Whether or not to extract phrases
+EXTRACT_PHRASES = False
 # Prefix, suffix, and domain lists
 PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 'ex', 'homo', 'hetero', 'hyper', 'in', 'inter', 'intra', 'mono', 'non', 'micro', 'macro', 'pre', 'post', 're', 'trans', 'tri', 'un', 'uni']
 DOMAIN_LIST = ['.com', '.edu', '.org', '.net', '.gov']

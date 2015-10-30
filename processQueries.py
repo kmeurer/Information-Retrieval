@@ -19,6 +19,9 @@ import tripleBuilder as tb
 
 
 results = {}
+stopTerms = dp.extractStopTerms()
+
+ENV.EXTRACT_PHRASES = True
 
 # load queries into memory as query objects
 queryData = dp.extractQueryInformation()
@@ -27,8 +30,9 @@ queryTitles = queryData.keys() # gives us each query title
 # for each query we have extracted
 for query in queryTitles:
 # 	# preprocessEachQuery using the same rules relied upon for documents
-	query = qp.processQuery(query)
+	query = qp.processQuery(query, stopTerms)
 	print query.text
+
 
 # 	relevantDocs = qp.findRelevantDocuments()
 # 	relevanceRanking = rankDocumentRelevance(relevantDocs)

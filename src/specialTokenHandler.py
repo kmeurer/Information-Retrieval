@@ -29,6 +29,8 @@ def processSpecialTokens(docStr):
 				term = processIPAddress(term)
 			elif isDottedTerm(term):
 				term = processDottedTerm(term)
+		if isSlashTerm(term):
+			term = processSlashTerm(term)
 		if "-" in term:
 			if isAlphabetDigit(term):
 				term = processAlphabetDigit(term)
@@ -203,9 +205,19 @@ def isIPAddress(docTerm):
 	return False
 
 def processIPAddress(docTerm):
-	print "IP ADDRESS: " + docTerm
 	return "{" + docTerm + "}"
 
 # processing of URLs (ex: "georgetown.edu"-> "{georgetown.edu}")
 def processURL(docTerm):
 	return "{" + docTerm + "}"
+
+# processing of slashed terms (ex: "Africa/Barbados, salt/pepper, cats/dogs")
+def isSlashTerm(docTerm):
+	if re.match(r'\b\w*\/\w*\b', docTerm):
+		return True
+	return False
+
+def processSlashTerm(docTerm):
+	docTerm = docTerm.replace("/", " ")
+	docTerm = docTerm.split(" ")
+	return docTerm
