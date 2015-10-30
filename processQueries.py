@@ -19,19 +19,21 @@ import tripleBuilder as tb
 
 
 results = {}
+
 # load queries into memory as query objects
 queryData = dp.extractQueryInformation()
-queryList = dp.extractQueries(queryData)
+queryTitles = queryData.keys() # gives us each query title
 
 # for each query we have extracted
-for query in queryList:
-	# preprocessEachQuery using the same rules relied upon for documents
-	dp.preprocessQuery(query)
+for query in queryTitles:
+# 	# preprocessEachQuery using the same rules relied upon for documents
+	query = qp.processQuery(query)
+	print query.text
 
-	relevantDocs = qp.findRelevantDocuments()
-	relevanceRanking = rankDocumentRelevance(relevantDocs)
-	# Calculate benchmarks based on our data
-	results[query.getId()] = calculateStats(relevanceRanking, annotatedResults)
+# 	relevantDocs = qp.findRelevantDocuments()
+# 	relevanceRanking = rankDocumentRelevance(relevantDocs)
+# 	# Calculate benchmarks based on our data
+# 	results[query.getId()] = calculateStats(relevanceRanking, annotatedResults)
 
 
 

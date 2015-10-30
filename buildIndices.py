@@ -19,6 +19,7 @@ import tripleBuilder as tb
 termList = []
 dfList = []
 tripleList = []
+documentList = []
 stopTerms = dp.extractStopTerms()
 if ENV.BUILD_ALL_INDEXES == True:
 	indexTypes = ["INVERTED", "POSITIONAL", "STEM", "PHRASE"]
@@ -42,6 +43,7 @@ for idxType in indexTypes:
 	termList[:] = []		# able to be stored in memory
 	dfList[:] = []			# companion to term list of df
 	tripleList[:] = []		# max length specified by memory constrain specified in settings.py
+	documentList[:] = []
 
 	totalDocCount = 0 # for counting processed documents
 	# for each file in the specified directory, extract and index documents
@@ -68,16 +70,20 @@ for idxType in indexTypes:
 				doc = dp.processDocument(docStr)
 				# MAIN ENTRY POINT FOR INDEXING
 				idx.indexDocument(doc, termList, dfList, tripleList, stopTerms)
+				documentList.append([doc.getDocId(), len(doc.tokens)])
+
 			currentLine = dataFile.readline()
 
 	# write remaining triples to a file
 	tb.writeTriplesToFile(tripleList)
+	# write documents to doc file
 	print "\n------------\n\nTemporary Triples Built.  Beginning Merge...\n"
 	mergeStart = datetime.datetime.now()
 	# merge our remaining temporary files
 	tb.mergeTempFiles()
 	# convert our triples to a posting list
 	tb.convertTriplesToPostings(ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.TRIPLE_LIST_NAME + '.txt', ENV.INDEX_LOCATION + ENV.INDEX_TYPE.lower() + ENV.POSTING_LIST_NAME + '.txt')
+	dp.writeDocListToFile(documentList)
 	mergeEnd = datetime.datetime.now()
 	mergeTime = mergeEnd - mergeStart
 	print "\nMerge Completed in " + str(mergeTime.seconds) + " second(s)."

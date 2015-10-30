@@ -31,6 +31,8 @@ TEMP_FILE_NAME = 'TempIndex'
 TRIPLE_LIST_NAME = 'TripleList'
 # base name for posting list files
 POSTING_LIST_NAME = 'PostingList'
+# Document list name
+DOC_FILE_NAME = 'DocList'
 # Build all indexes option.  If set to True, will build each index type
 BUILD_ALL_INDEXES = True
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"

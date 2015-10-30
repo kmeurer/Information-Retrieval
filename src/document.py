@@ -150,3 +150,9 @@ class Document(object):
 			if term not in lexicon:
 				newTokens.append(term)
 		self.tokens = newTokens
+
+class Query(Document):
+	def __init__(self, text):
+		self.text = text
+		self.tokenizeDocument();
+		self.phrases = []
