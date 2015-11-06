@@ -3,7 +3,7 @@ import codecs
 import utils as util
 import settings as ENV
 import bisect
-import document as d
+from object_definitions import document as d
 import tripleBuilder as tb
 
 # indexDocument: Takes a single document and the global variables for storage and, based on the current index, adds terms to the triples list

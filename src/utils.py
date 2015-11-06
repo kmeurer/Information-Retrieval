@@ -1,9 +1,19 @@
-#  STORES ACCESSORY CLASSES AND FUNCTIONS
 import time, sys
 import numpy as np
+import codecs
+import re
 import math
 import random
 import settings as ENV
+
+#  STORES ACCESSORY CLASSES AND FUNCTIONS
+def extractStopTerms():
+    stopTerms = []
+    stopTermFile = codecs.open(ENV.STOP_LIST_SRC, 'rb', 'utf-8')    # specify utf-8 encoding
+    lines = stopTermFile.readlines()
+    for line in lines:
+        stopTerms.append(re.sub('\n', '', line))
+    return stopTerms
 
 # SAMPLING FUNCTIONS
 # choose w/out replacement and return it

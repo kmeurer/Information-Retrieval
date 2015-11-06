@@ -1,18 +1,10 @@
 import re
 import codecs
 import os
-import document as d
+from object_definitions import query as q
 import utils as util
 import settings as ENV
-import document as d
 
-def extractStopTerms():
-	stopTerms = []
-	stopTermFile = codecs.open(ENV.STOP_LIST_SRC, 'rb', 'utf-8') 	# specify utf-8 encoding
-	lines = stopTermFile.readlines()
-	for line in lines:
-		stopTerms.append(re.sub('\n', '', line))
-	return stopTerms
 
 # Pull relevant information from query file, including title, num, and description
 def extractQueryInformation():
@@ -41,19 +33,21 @@ def extractQueryInformation():
 		currentLine = queryFile.readline()
 	return queries
 
-def writeDocListToFile(docList):
-	print "running"
-	fileName = ENV.INDEX_TYPE.lower() + ENV.DOC_FILE_NAME + ".txt"
-	docFile = codecs.open(ENV.INDEX_LOCATION + fileName, 'w', 'utf-8') 	# specify utf-8 encoding
-	for doc in docList:
-		docFile.write(str(doc[0]) + " " + str(doc[1]) + "\n")
-
-def processDocument(docStr, stopTerms):
-	# Ignore empty document tokens
-	if docStr.isspace() or docStr == "" :
+def preprocess_query(queryString, stopTerms):
+	if queryString.isspace() or queryString == "" :
 		return None
 	# Convert document to class format
-	doc = d.Document(re.search('<DOCNO>(.*)</DOCNO>', docStr).group(1), docStr)
-	doc.preprocessText(stopTerms)
+	query = q.Query(queryString)
+	# Use the same preprocessing strategy here for consistency
+	query.preprocessText(stopTerms)
 	# clean up document by eliminating extraneous tokens, except in cases where they fall within brackets {}
-	return doc
+	return query
+
+def extract_bm25_scores(query):
+	return None
+
+def extract_vector_space_scores(query):
+	return None
+
+def extract_language_model_scores(query):
+	return None

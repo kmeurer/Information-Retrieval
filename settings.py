@@ -1,9 +1,9 @@
 # USED TO STORE GLOBAL / ENVIRONMENTAL VARIABLES
 
-# GENERAL SETTINGS
+'''GENERAL SETTINGS'''
 PROGRESS_BAR = True
 
-# FUNCTIONAL SETTINGS
+'''FUNCTIONAL SETTINGS'''
 # Source directory for documents to be indexed (always use trailing slash)
 DOCUMENT_SRC = './data/BigSample/'
 # File location for queries to be tested
@@ -11,7 +11,7 @@ QUERY_SRC = './data/QueryFile/queryfile.txt'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
-# PRE-PROCESSING SETTINGS
+'''PRE-PROCESSING SETTINGS'''
 # Whether or not to include decimals in tokens or simply round
 INCLUDE_DECIMALS = True
 # Whether or not to remove stop words in preprocessing (Note: the positional index never removes stop words)
@@ -24,7 +24,7 @@ DOMAIN_LIST = ['.com', '.edu', '.org', '.net', '.gov']
 FILE_EXTENSION_LIST = ['.pdf', '.html', '.doc', '.docx', '.css', '.ppt', '.py', '.txt', '.csv', '.xml', '.mp3', '.mov', '.avi', '.png', '.jpeg', '.jpg', '.xls', '.exe', '.js']
 
 
-# INDEXING SETTINGS
+'''INDEXING SETTINGS'''
 # Relative path to index directory (always use trailing slash)
 INDEX_LOCATION = './index/'
 # base name for temp files
@@ -46,7 +46,13 @@ MIN_PHRASE_TF = 2
 # Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)
 MEMORY_MAXIMUM = 100000
 
-# QUERY PROCESSING SETTINGS
+'''QUERY PROCESSING SETTINGS'''
+# Method of Query processing.  Allowed Values: "STANDARD" or "CONDITIONAL"
+# Standard: Sends all queries to the index specified by QUERY_PROCESSING_INDEX
+# Conditional: Sends some queries to phrase index and others to positional index
+QUERY_PROCESSING_METHOD = "STANDARD"
+# Index to be used if standard is specified
+QUERY_PROCESSING_INDEX = "INVERTED"
 # Relevance Ranking Option.  Valid types are: "BM25", "VECTOR", "LANGUAGE"
-DOCUMENT_RANKING_METHOD = "VECTOR"
+SIMILARITY_MEASURE = "BM25"
 

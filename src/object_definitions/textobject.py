@@ -1,7 +1,7 @@
 import re
-import specialTokenHandler as sth
 import nltk.stem.porter as ps
 import settings as ENV
+from preprocess import specialTokenHandler as sth
 
 '''
 TextObject Class: overarching class that is used as a parent for both Document and Query
@@ -170,35 +170,3 @@ class TextObject(object):
 			else:
 				termCounts[term] = [1, [idx]]
 		return termCounts
-
-'''
-Document object.  Specific information related to documents
-'''
-class Document(TextObject):
-	def __init__(self, docId, text):
-		super(Document, self).__init__(text)
-		self.id = int(re.sub("\D", "", docId)) # stores as number for space efficiency
-
-	# getDocId: returns the id of the current document
-	def getDocId(self):
-		return self.id
-
-	def preprocessText(self, stopTerms):
-		super(Document, self).preprocessText()
-		if ENV.INDEX_TYPE == "PHRASE":
-			self.extractValidPhrases(stopTerms)
-		# Now that we have our phrase information, we can clean our tokens
-		self.cleanTokens()
-
-'''
-Query Object.  Information specific to queries.  Inherits all properties from TextObject
-'''
-class Query(TextObject):
-	def __init__(self, text):
-		super(Query, self).__init__(text)
-
-	def preprocessText(self, stopTerms):
-		super(Query, self).preprocessText()
-		self.extractValidPhrases(stopTerms)
-		# Now that we have our phrase information, we can clean our tokens
-		self.cleanTokens()

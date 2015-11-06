@@ -7,20 +7,20 @@ import re
 import datetime
 import tabulate as tab
 import numpy as np
+import settings as ENV
 
 sys.path.insert(0, 'src')
-import docProcessor as dp
 import utils as util
-import settings as ENV
-import indexing as idx
-import document as d
-import tripleBuilder as tb
+from indexing import docProcessor as dp
+from indexing import indexing as idx
+from indexing import tripleBuilder as tb
+from object_definitions import document as d
 
 termList = []
 dfList = []
 tripleList = []
 documentList = []
-stopTerms = dp.extractStopTerms()
+stopTerms = util.extractStopTerms()
 if ENV.BUILD_ALL_INDEXES == True:
 	indexTypes = ["INVERTED", "POSITIONAL", "STEM", "PHRASE"]
 else:

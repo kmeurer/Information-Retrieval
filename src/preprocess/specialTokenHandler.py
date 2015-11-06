@@ -3,7 +3,10 @@ import datetime
 import utils as util
 import settings as ENV
 
-# Takes in a full string and returns a term list of processed terms
+'''
+Highest level function. Takes in a full string and returns a joined string of processed terms
+Special tokens will be wrapped in curly braces {} so they will not be pruned of punctuation later
+'''
 def processSpecialTokens(docStr):
 	docStr = processDates(docStr)
 	docTerms = re.split('\s*', docStr)
@@ -196,6 +199,8 @@ def isEmailAddress(docTerm):
 	return False
 
 def processEmailAddress(docTerm):
+	if re.match(r'[\,\.\'\"]', docTerm[len(docTerm) - 1]):
+		docTerm[len(docTerm) - 1] = ''
 	return "{" + docTerm + "}"
 
 # processing of IP addresses (ex: "73.172.16.182"->"{73.172.16.182}")
