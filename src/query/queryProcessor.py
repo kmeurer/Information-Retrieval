@@ -120,7 +120,9 @@ def extract_vector_space_scores(query, index):
     final_scores = []
     # for each document, we sum the product of all the weights
     for doc in document_weights:
-        final_scores.append([doc, calculate_vector_space_cosine(document_weights[doc], index.get_document_weight_summation(doc))])
+        # print index.get_document_weight_summation(doc)
+        # print index.get_document_weight_summation2(doc)
+        final_scores.append([doc, calculate_vector_space_cosine(document_weights[doc], index.get_document_weight_summation2(doc))])
     final_scores.sort(key=operator.itemgetter(1), reverse=True)
     return final_scores
 

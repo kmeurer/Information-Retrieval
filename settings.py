@@ -54,9 +54,9 @@ MEMORY_MAXIMUM = 100000
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
-QUERY_PROCESSING_INDEX = "INVERTED"
+QUERY_PROCESSING_INDEX = "STEM"
 # Relevance Ranking Option.  Valid types are: "BM25", "COSINE", "LANGUAGE"
-SIMILARITY_MEASURE = "BM25"
+SIMILARITY_MEASURE = "COSINE"
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
 BM_25_K2 = 500

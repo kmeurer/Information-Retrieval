@@ -20,7 +20,7 @@ class Index(object):
         self.lexicon = self._read_lexicon_to_memory(lexicon_file_location)
         self._lexicon_compressed = [term_entry[1] for term_entry in self.lexicon]
         
-        if ENV.SIMILARITY_MEASURE == "VECTOR":
+        if ENV.SIMILARITY_MEASURE == "COSINE":
            self._extract_document_summations()
 
     
@@ -67,6 +67,9 @@ class Index(object):
         return self.lexicon[term_id][2]
 
     def get_document_weight_summation(self, doc_id):
+        return self.doc_list[doc_id]['tf_idf_sum']
+
+    def get_document_weight_summation2(self, doc_id):
         return self.doc_list[doc_id]['sum_weight']
 
     def get_document_length(self, doc_id):
@@ -198,20 +201,41 @@ class Index(object):
     Nothing.  Updates self.doc_list
     '''
     def _extract_document_summations(cls):
-        print "\nExtracting document summations for use in Vector Space Model..."
+        print "\nExtracting document tf-idf summations for use in Vector Space Cosine..."
         if ENV.PROGRESS_BAR == True:
             util.update_progress(0)
+        # for every term in our posting list
         for idx, term in enumerate(cls.posting_list):
             if ENV.PROGRESS_BAR == True:
                 util.update_progress(float(idx) / float(len(cls.posting_list)))
             docs = cls.posting_list[term]
+            # run through the documents for each term and add the additional tfidf to an accumulation in the dict
             for doc in docs:
-                addition = qp.calculate_tf_idf(doc[1], cls.get_df_by_term_id(term), len(cls.doc_list.keys()))
-                addition_squared = np.square(addition)
-                if 'sum_weight' in cls.doc_list[doc[0]]:
-                    cls.doc_list[doc[0]]['sum_weight'] += addition_squared
+                tfidf_addition = qp.calculate_tf_idf(doc[1], cls.get_df_by_term_id(term), len(cls.doc_list.keys()))
+                tfidf_addition_squared = np.square(tfidf_addition)
+                if 'tf_idf_sum' in cls.doc_list[doc[0]]:
+                    cls.doc_list[doc[0]]['tf_idf_sum'] += tfidf_addition_squared
                 else:
-                    cls.doc_list[doc[0]]['sum_weight'] = addition_squared
+                    cls.doc_list[doc[0]]['tf_idf_sum'] = tfidf_addition_squared
+        if ENV.PROGRESS_BAR == True:
+            util.update_progress(1)
+        
+        print "\nExtracting document weight summations for use in Vector Space Cosine..."
+        if ENV.PROGRESS_BAR == True:
+            util.update_progress(0)
+        # Again, we run through each term in our posting list
+        for idx, term in enumerate(cls.posting_list):
+            if ENV.PROGRESS_BAR == True:
+                util.update_progress(float(idx) / float(len(cls.posting_list)))
+            docs = cls.posting_list[term]
+            # each doc within each term has the VS weight calculated for the terms to find a summation
+            for doc in docs:
+                weight_addition = float(qp.calculate_tf_idf(doc[1], cls.get_df_by_term_id(term), len(cls.doc_list.keys()))) / float(cls.doc_list[doc[0]]['tf_idf_sum'])
+                weight_addition_squared = np.square(weight_addition)
+                if 'sum_weight' in cls.doc_list[doc[0]]:
+                    cls.doc_list[doc[0]]['sum_weight'] += weight_addition_squared
+                else:
+                    cls.doc_list[doc[0]]['sum_weight'] = weight_addition_squared
         if ENV.PROGRESS_BAR == True:
             util.update_progress(1)
 
