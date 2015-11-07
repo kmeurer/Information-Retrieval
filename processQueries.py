@@ -43,15 +43,25 @@ for queryText in queryTitles:
     # preprocessEachQuery using the same rules relied upon for documents
     query = qp.preprocess_query(queryText, stopTerms)
     # If we are deferring to a specific index
-    if ENV.QUERY_PROCESSING_METHOD == "STANDARD":
-        if ENV.QUERY_PROCESSING_INDEX == "INVERTED":
-            query.removeStopWords(stopTerms)
-            if ENV.SIMILARITY_MEASURE == "BM25":
-                queryScores[queryText] = qp.extract_bm25_scores(query, lexicon, doc_list)
-            elif ENV.SIMILARITY_MEASURE == "VECTOR":
-                queryScores[queryText] = qp.extract_vector_space_scores(query, primary_index)
-            elif ENV.SIMILARITY_MEASURE == "LANGUAGE":
-                queryScores[queryText] = qp.extract_language_model_scores(query, lexicon, doc_list)
+    if ENV.QUERY_PROCESSING_METHOD == 'STANDARD':
+        query.removeStopWords(stopTerms)
+        if ENV.QUERY_PROCESSING_INDEX == 'STEM':
+            query.stemTerms()
+        if ENV.SIMILARITY_MEASURE == 'BM25':
+            queryData[queryText] = qp.extract_bm25_scores(query, lexicon, doc_list)
+        elif ENV.SIMILARITY_MEASURE == 'VECTOR':
+            queryData[queryText]['rankings'] = qp.extract_vector_space_scores(query, primary_index)
+        elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
+            queryData[queryText] = qp.extract_language_model_scores(query, lexicon, doc_list)
+
+# Write to an evaluation file
+eval_file = codecs.open(ENV.TRECEVAL_SRC + ENV.QUERY_PROCESSING_INDEX.lower() + ENV.SIMILARITY_MEASURE.lower() + '.txt', 'w', 'utf-8')
+for qt in queryData:
+    for idx, ranked_query in enumerate(queryData[qt]['rankings'][0:100]):
+        eval_file.write(str(queryData[qt]['number']) + ' 0 ' + util.convert_num_id_to_trek_id(ranked_query[0]) + ' ' + str(idx + 1) + ' ' + ENV.SIMILARITY_MEASURE.lower() + '\n')
+
+eval_file.close()
+
 
 
 #   relevantDocs = qp.findRelevantDocuments()

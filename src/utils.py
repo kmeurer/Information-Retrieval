@@ -79,3 +79,9 @@ def update_progress(progress):
     text = "\rProgress: [{0}] {1}% {2}".format( "#" * block + "-" * (barLength - block), progress * 100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
+
+def convert_num_id_to_trek_id(doc_id):
+    # convert to string
+    doc_id = str(doc_id)
+    return 'FR' + doc_id[0:6] + '-' + doc_id[6:7] + '-' + doc_id[7:]
+

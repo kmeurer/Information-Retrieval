@@ -8,6 +8,8 @@ PROGRESS_BAR = True
 DOCUMENT_SRC = './data/BigSample/'
 # File location for queries to be tested
 QUERY_SRC = './data/QueryFile/queryfile.txt'
+# File location to write treceval files
+TRECEVAL_SRC = './treceval/'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
@@ -51,8 +53,8 @@ MEMORY_MAXIMUM = 100000
 # Standard: Sends all queries to the index specified by QUERY_PROCESSING_INDEX
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
-# Index to be used if standard is specified
-QUERY_PROCESSING_INDEX = "INVERTED"
+# Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
+QUERY_PROCESSING_INDEX = "STEM"
 # Relevance Ranking Option.  Valid types are: "BM25", "VECTOR", "LANGUAGE"
 SIMILARITY_MEASURE = "VECTOR"
 # Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
