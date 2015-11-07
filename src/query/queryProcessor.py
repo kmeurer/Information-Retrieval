@@ -6,6 +6,7 @@ import numpy as np
 import utils as util
 import settings as ENV
 import indexLoader as il
+import operator
 
 
 # Pull relevant information from query file, including title, num, and description
@@ -57,46 +58,52 @@ def extract_bm25_scores(query, lexicon, doc_list):
     print posting_entries
     return None
 
-def extract_vector_space_scores(query, lexicon, doc_list):
-    term_info = query.extractTermInformation()
-    lexicon_compressed = [item[1] for item in lexicon]
-    term_ids = []
-    # find term id for each term
-    for term in term_info:
-        if term in lexicon_compressed:
-            term_ids.append([lexicon_compressed.index(term), term_info[term]])
-        else:
-            continue
+'''
+    Given a query and an index object (specified in index.py), return a score list by document
+
+    Returns
+    -------
+    list of documents and their scores
+      [ [documentID, docScore], [documentID, docScore]]
+'''
+def extract_vector_space_scores(query, index):
+    # get terms and term frequencies from the query in format {term: tf}
+    q_term_info_dict = query.extractTermInformation()
+    q_tid_info_dict = {}
+    for term_name in q_term_info_dict:
+        tid = index.get_term_id_by_term(term_name)
+        if tid != None:
+            q_tid_info_dict[tid] = q_term_info_dict[term_name]
     
     # retrieve posting list entries for all term ids in format:
     # { termId: [[doc1, tf], [doc2, tf]]}
-    print term_ids
-    relevant_posting_entries = il.read_posting_entries_to_memory(ENV.INDEX_LOCATION + ENV.QUERY_PROCESSING_INDEX.lower() + ENV.POSTING_LIST_NAME + ".txt", [tid[0] for tid in term_ids])
+    relevant_posting_entries = index.get_posting_entries_by_terms(q_term_info_dict.keys())
+
+    # Step 1:
+    # calculate aggregate query term weight summation (for use in query weight function)
+    query_total_summation = 0.0
+    for term_id in relevant_posting_entries:
+        query_total_summation += np.square(calculate_tf_idf(q_tid_info_dict[term_id], index.get_df_by_term_id(term_id), index.get_collection_size()))
     
-    # info stored by document in the format:
-    # { docID: [ [queryWeight1, termWeight1], [queryWeight2, termWeight2] ] }
-    relevance_info = {}
-    for i, term_info in enumerate(term_ids):
-        term_lexicon_index = term_info[0]
-        query_tf = term_info[1]
-        term_df = lexicon[term_lexicon_index][2]
-        # get the document info for each document that contains the term
-        for doc in relevant_posting_entries[term_info[0]]:
-            document_tf = doc[1]
-            # print doc
-            # print document_tf
-            added_relevance_info = [calculate_term_weight(query_tf, term_df, len(doc_list)), calculate_term_weight(document_tf, term_df, len(doc_list))]
-            if doc[0] in relevance_info:
-                relevance_info[doc[0]].append(added_relevance_info)
+    document_weights = {}
+    for term_id in relevant_posting_entries:
+        term_df = index.get_df_by_term_id(term_id)
+        query_term_weight = calculate_term_weight(q_tid_info_dict[term_id], term_df, index.get_collection_size(), query_total_summation)
+        for doc in relevant_posting_entries[term_id]:
+            doc_id = doc[0]
+            doc_tf = doc[1]
+            document_term_weight = calculate_term_weight(doc_tf, term_df, index.get_collection_size(), index.get_document_weight_summation(doc_id))
+            if doc_id in document_weights:
+                document_weights[doc_id].append([query_term_weight, document_term_weight])
             else:
-                relevance_info[doc[0]] = [ added_relevance_info ]
-    finalScores = []
-    for docId in relevance_info:
-        docScore = calculate_vector_space_cosine(relevance_info[docId])
-        # print docScore
-        finalScores.append([docId, docScore])
-    # print finalScores
-    return finalScores
+                document_weights[doc_id] = [[query_term_weight, document_term_weight]]
+    final_scores = []
+    # for each document, we sum the product of all the weights
+    for doc in document_weights:
+        final_scores.append([doc, calculate_vector_space_cosine(document_weights[doc], index.get_document_weight_summation(doc))])
+    max_score = final_scores[0]
+    final_scores.sort(key=operator.itemgetter(1), reverse=True)
+    return final_scores
 
 def extract_language_model_scores(query, lexicon, doc_list):
     # term_info = query.extractTermInformation()
@@ -110,9 +117,12 @@ def extract_language_model_scores(query, lexicon, doc_list):
     return None
 
 '''
-Calculates term weights for 
+Calculates term weights for a given query or document
 '''
-def calculate_term_weight(tf, df, collection_size):
+def calculate_term_weight(tf, df, collection_size, document_tf_idf_summation):
+    return calculate_tf_idf(tf, df, collection_size) / document_tf_idf_summation
+
+def calculate_tf_idf(tf, df, collection_size):
     return (np.log(tf) + 1) * calculate_idf(df, collection_size)
 
 def calculate_idf(df, collection_size):
@@ -121,15 +131,12 @@ def calculate_idf(df, collection_size):
 '''
 Calculates vector space cosine.  Given a list of the following: [queryWeight, documentWeights] for each term
 '''
-def calculate_vector_space_cosine(qw_dw_list):
+def calculate_vector_space_cosine(qw_dw_list, document_tf_idf_summation):
     numerator_sum = 0.0
     denominator_query_sum = 0.0
-    denominator_document_sum = 0.0
+    denominator_document_sum = document_tf_idf_summation
     for weight_entry in qw_dw_list:
         numerator_sum += weight_entry[0] * weight_entry[1]
-        denominator_document_sum += np.square(weight_entry[1])
         denominator_query_sum += np.square(weight_entry[0])
-    print numerator_sum
-    print np.sqrt(denominator_document_sum) * np.sqrt(denominator_query_sum)
     return numerator_sum / np.sqrt(denominator_document_sum * denominator_query_sum)
 

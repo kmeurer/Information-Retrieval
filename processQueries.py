@@ -49,7 +49,7 @@ for queryText in queryTitles:
             if ENV.SIMILARITY_MEASURE == "BM25":
                 queryScores[queryText] = qp.extract_bm25_scores(query, lexicon, doc_list)
             elif ENV.SIMILARITY_MEASURE == "VECTOR":
-                queryScores[queryText] = qp.extract_vector_space_scores(query, lexicon, doc_list)
+                queryScores[queryText] = qp.extract_vector_space_scores(query, primary_index)
             elif ENV.SIMILARITY_MEASURE == "LANGUAGE":
                 queryScores[queryText] = qp.extract_language_model_scores(query, lexicon, doc_list)
 
