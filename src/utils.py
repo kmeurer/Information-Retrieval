@@ -61,7 +61,7 @@ def isNumber(str):
         return False
 
 # Progress bar function -- Some functions inspired by this: http://stackoverflow.com/questions/3160699/python-progress-bar
-def updateProgress(progress):
+def update_progress(progress):
     barLength = 20 # Modify this to change the length of the progress bar
     status = ""
     if isinstance(progress, int):

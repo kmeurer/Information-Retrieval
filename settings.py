@@ -54,5 +54,8 @@ QUERY_PROCESSING_METHOD = "STANDARD"
 # Index to be used if standard is specified
 QUERY_PROCESSING_INDEX = "INVERTED"
 # Relevance Ranking Option.  Valid types are: "BM25", "VECTOR", "LANGUAGE"
-SIMILARITY_MEASURE = "BM25"
+SIMILARITY_MEASURE = "VECTOR"
+# Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
+EXTRACT_FULL_POSTING_LIST = True
+
 
