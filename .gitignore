@@ -4,3 +4,4 @@ activate/*
 **/*.pyc
 index/*.txt
 **/*.pdf
+data/BigSample
