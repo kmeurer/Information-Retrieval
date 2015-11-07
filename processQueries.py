@@ -48,11 +48,11 @@ for queryText in queryTitles:
         if ENV.QUERY_PROCESSING_INDEX == 'STEM':
             query.stemTerms()
         if ENV.SIMILARITY_MEASURE == 'BM25':
-            queryData[queryText] = qp.extract_bm25_scores(query, lexicon, doc_list)
-        elif ENV.SIMILARITY_MEASURE == 'VECTOR':
+            queryData[queryText]['rankings'] = qp.extract_bm25_scores(query, primary_index)
+        elif ENV.SIMILARITY_MEASURE == 'COSINE':
             queryData[queryText]['rankings'] = qp.extract_vector_space_scores(query, primary_index)
         elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-            queryData[queryText] = qp.extract_language_model_scores(query, lexicon, doc_list)
+            queryData[queryText]['rankings'] = qp.extract_language_model_scores(query, primary_index)
 
 # Write to an evaluation file
 eval_file = codecs.open(ENV.TRECEVAL_SRC + ENV.QUERY_PROCESSING_INDEX.lower() + ENV.SIMILARITY_MEASURE.lower() + '.txt', 'w', 'utf-8')

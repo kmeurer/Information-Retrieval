@@ -72,6 +72,9 @@ class Index(object):
     def get_document_length(self, doc_id):
         return self.doc_list[doc_id]['length']
 
+    def get_avg_document_length(self):
+        return self.avg_doc_length
+
     def get_collection_size(self):
         return len(self.doc_list.keys())
 
@@ -166,6 +169,7 @@ class Index(object):
     '''
     def _read_doc_list_to_memory(cls, file_location):
         print "\nExtracting Document List..."
+        doc_lengths = []
         documents = codecs.open(file_location, 'rb', 'utf-8')
         document_list = documents.readlines()
         doc_dict = {}
@@ -179,8 +183,10 @@ class Index(object):
             entry[1] = int(entry[1])
             document_list[idx] = entry
             doc_dict[entry[0]] = {'length': entry[1]}
+            doc_lengths.append(entry[1])
         if ENV.PROGRESS_BAR == True:
             util.update_progress(1)
+        cls.avg_doc_length = np.mean(doc_lengths)
         return doc_dict
 
     '''
@@ -208,7 +214,4 @@ class Index(object):
                     cls.doc_list[doc[0]]['sum_weight'] = addition_squared
         if ENV.PROGRESS_BAR == True:
             util.update_progress(1)
-
-
-
 
