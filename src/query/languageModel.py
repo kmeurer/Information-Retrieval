@@ -20,7 +20,10 @@ def extract_language_model_scores(query, index):
     if ENV.USE_AVG_DOC_LENGTH_FOR_LANG_U == True:
         ENV.LANG_U = index.get_avg_document_length()
     # get terms and term frequencies from the query in format {term: tf}
-    q_term_info_dict = query.extractTermInformation()
+    if ENV.QUERY_PROCESSING_INDEX == 'PHRASE':
+        q_term_info_dict = query.extractValidPhrases(ENV.STOP_TERMS)
+    else:
+        q_term_info_dict = query.extractTermInformation()
     q_tid_info_dict = {}
     for term_name in q_term_info_dict:
         tid = index.get_term_id_by_term(term_name)

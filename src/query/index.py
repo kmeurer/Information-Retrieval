@@ -64,7 +64,12 @@ class Index(object):
             return None
 
     def get_df_by_term_id(self, term_id):
+        if term_id == None:
+            return 0
         return self.lexicon[term_id][2]
+
+    def get_df_by_term(self, term):
+        return self.get_df_by_term_id( self.get_term_id_by_term(term) )
 
     def get_document_weight_summation(self, doc_id):
         return self.doc_list[doc_id]['tf_idf_sum']

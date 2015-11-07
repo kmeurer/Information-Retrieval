@@ -2,6 +2,7 @@
 
 '''GENERAL SETTINGS'''
 PROGRESS_BAR = True
+STOP_TERMS = []
 
 '''FUNCTIONAL SETTINGS'''
 # Source directory for documents to be indexed (always use trailing slash)
@@ -9,7 +10,7 @@ DOCUMENT_SRC = './data/BigSample/'
 # File location for queries to be tested
 QUERY_SRC = './data/QueryFile/queryfile.txt'
 # File location to write treceval files
-TRECEVAL_SRC = './treceval/'
+TRECEVAL_SRC = './treceval/results/'
 # relative location of stop words
 STOP_LIST_SRC = './data/stops.txt'
 
@@ -54,9 +55,9 @@ MEMORY_MAXIMUM = 100000
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
-QUERY_PROCESSING_INDEX = "STEM"
-# Relevance Ranking Option.  Valid types are: "BM25", "COSINE", "LANGUAGE"
-SIMILARITY_MEASURE = "LANGUAGE"
+QUERY_PROCESSING_INDEX = "INVERTED"
+# Relevance Ranking Option. Valid types are: "BM25", "COSINE", "LANGUAGE"
+SIMILARITY_MEASURE = "COSINE"
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
 BM_25_K2 = 500
@@ -64,7 +65,11 @@ BM_25_B  = 0.75
 # DIRICHLET TUNING PARAMETERS: ONLY USED IF SIMILARITY_MEASURE = "LANGUAGE"
 LANG_U = 50.0
 USE_AVG_DOC_LENGTH_FOR_LANG_U = True
+# PHRASE MIN DF: Minimum document frequency for a phrase for it to be sent to the phrase index
+PHRASE_MIN_DF = 2
 # Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
 EXTRACT_FULL_POSTING_LIST = True
+
+./trec_eval -q -a ~/Projects/InformationRetrieval/treceval/qrel.txt ~/Projects/InformationRetrieval/treceval/results/standard_inverted_language.txt > ~/Projects/InformationRetrieval/treceval/eval/standard_inverted_language_eval.txt
 
 

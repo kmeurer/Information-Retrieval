@@ -14,7 +14,10 @@ import operator
 '''
 def extract_bm25_scores(query, index):
     # get terms and term frequencies from the query in format {term: tf}
-    q_term_info_dict = query.extractTermInformation()
+    if ENV.QUERY_PROCESSING_INDEX == 'PHRASE':
+        q_term_info_dict = query.extractValidPhrases(ENV.STOP_TERMS)
+    else:
+        q_term_info_dict = query.extractTermInformation()
     q_tid_info_dict = {}
     for term_name in q_term_info_dict:
         tid = index.get_term_id_by_term(term_name)
