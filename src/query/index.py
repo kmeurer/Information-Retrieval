@@ -81,6 +81,9 @@ class Index(object):
     def get_collection_size(self):
         return len(self.doc_list.keys())
 
+    def get_collection_length(self):
+        return self.collection_length
+
     '''
     Given a file location and a list of termIds, retrieves specified 
     term entries from a posting list in the format below.  Useful for memory-constrained projects
@@ -190,6 +193,7 @@ class Index(object):
         if ENV.PROGRESS_BAR == True:
             util.update_progress(1)
         cls.avg_doc_length = np.mean(doc_lengths)
+        cls.collection_length = np.sum(doc_lengths)
         return doc_dict
 
     '''

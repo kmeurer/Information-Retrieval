@@ -12,8 +12,12 @@ sys.path.insert(0, 'src')
 import utils as util
 from query import queryProcessor as qp
 from query import index as i
+from query import vectorSpace as vsm
+from query import bm25
+from query import languageModel as lang
 from indexing import indexing as idx
 from object_definitions import document as d
+
 
 results = {}
 stopTerms = util.extractStopTerms()
@@ -48,11 +52,11 @@ for queryText in queryTitles:
         if ENV.QUERY_PROCESSING_INDEX == 'STEM':
             query.stemTerms()
         if ENV.SIMILARITY_MEASURE == 'BM25':
-            queryData[queryText]['rankings'] = qp.extract_bm25_scores(query, primary_index)
+            queryData[queryText]['rankings'] = bm25.extract_bm25_scores(query, primary_index)
         elif ENV.SIMILARITY_MEASURE == 'COSINE':
-            queryData[queryText]['rankings'] = qp.extract_vector_space_scores(query, primary_index)
+            queryData[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, primary_index)
         elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-            queryData[queryText]['rankings'] = qp.extract_language_model_scores(query, primary_index)
+            queryData[queryText]['rankings'] = lang.extract_language_model_scores(query, primary_index)
 
 # Write to an evaluation file
 eval_file = codecs.open(ENV.TRECEVAL_SRC + ENV.QUERY_PROCESSING_INDEX.lower() + ENV.SIMILARITY_MEASURE.lower() + '.txt', 'w', 'utf-8')
@@ -61,13 +65,4 @@ for qt in queryData:
         eval_file.write(str(queryData[qt]['number']) + ' 0 ' + util.convert_num_id_to_trek_id(ranked_query[0]) + ' ' + str(idx + 1) + ' ' + str(ranked_query[1]) + ' ' + ENV.SIMILARITY_MEASURE + '\n')
 
 eval_file.close()
-
-
-
-#   relevantDocs = qp.findRelevantDocuments()
-#   relevanceRanking = rankDocumentRelevance(relevantDocs)
-#   # Calculate benchmarks based on our data
-#   results[query.getId()] = calculateStats(relevanceRanking, annotatedResults)
-
-
 
