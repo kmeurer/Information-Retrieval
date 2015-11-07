@@ -58,7 +58,7 @@ for queryText in queryTitles:
 eval_file = codecs.open(ENV.TRECEVAL_SRC + ENV.QUERY_PROCESSING_INDEX.lower() + ENV.SIMILARITY_MEASURE.lower() + '.txt', 'w', 'utf-8')
 for qt in queryData:
     for idx, ranked_query in enumerate(queryData[qt]['rankings'][0:100]):
-        eval_file.write(str(queryData[qt]['number']) + ' 0 ' + util.convert_num_id_to_trek_id(ranked_query[0]) + ' ' + str(idx + 1) + ' ' + ENV.SIMILARITY_MEASURE.lower() + '\n')
+        eval_file.write(str(queryData[qt]['number']) + ' 0 ' + util.convert_num_id_to_trek_id(ranked_query[0]) + ' ' + str(idx + 1) + ' ' + str(ranked_query[1]) + ' ' + ENV.SIMILARITY_MEASURE + '\n')
 
 eval_file.close()
 

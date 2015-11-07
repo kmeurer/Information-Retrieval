@@ -54,7 +54,7 @@ MEMORY_MAXIMUM = 100000
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
-QUERY_PROCESSING_INDEX = "STEM"
+QUERY_PROCESSING_INDEX = "INVERTED"
 # Relevance Ranking Option.  Valid types are: "BM25", "VECTOR", "LANGUAGE"
 SIMILARITY_MEASURE = "VECTOR"
 # Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
