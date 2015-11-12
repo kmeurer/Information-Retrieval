@@ -1,3 +1,7 @@
+'''
+INDEX CLASS:  Object designed to hold a posting list, document list, and a lexicon
+'''
+
 import re
 import codecs
 import settings as ENV
@@ -7,7 +11,7 @@ import numpy as np
 
 class Index(object):
     def __init__(self, lexicon_file_location, posting_list_file_location, doc_list_file_location):
-        print "\nLOADING INDEX..."
+        print "\n\nLOADING " + ENV.QUERY_PROCESSING_INDEX + " INDEX..."
         # extract doc list
         self.doc_list_location = doc_list_file_location
         self.doc_list = self._read_doc_list_to_memory(doc_list_file_location)
@@ -62,6 +66,9 @@ class Index(object):
             return self._lexicon_compressed.index(term)
         else:
             return None
+
+    def get_term_by_term_id(self, term_id):
+        return self.lexicon[term_id][1]
 
     def get_df_by_term_id(self, term_id):
         if term_id == None:

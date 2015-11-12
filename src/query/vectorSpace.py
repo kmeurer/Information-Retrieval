@@ -41,8 +41,11 @@ def extract_vector_space_cosine_scores(query, index):
             doc_id = doc[0]
             doc_tf = doc[1]
             document_term_weight = calculate_term_weight(doc_tf, term_df, index.get_collection_size(), index.get_document_weight_summation(doc_id))
-            if doc_id in document_weights:
-                document_weights[doc_id].append([query_term_weight, document_term_weight])
+            added_weight = [query_term_weight, document_term_weight]
+            if added_weight[0] == 0:
+                continue
+            elif doc_id in document_weights:
+                document_weights[doc_id].append(added_weight)
             else:
                 document_weights[doc_id] = [[query_term_weight, document_term_weight]]
     final_scores = []
@@ -59,8 +62,11 @@ def calculate_vector_space_cosine(qw_dw_list, document_tf_idf_summation):
     numerator_sum = 0.0
     denominator_query_sum = 0.0
     denominator_document_sum = document_tf_idf_summation
+    # for each term in the query
     for weight_entry in qw_dw_list:
+        # add to the numerator summation the product of the query weight and the doc weight
         numerator_sum += weight_entry[0] * weight_entry[1]
+        # add the squared query sum to the denominator
         denominator_query_sum += np.square(weight_entry[0])
     return numerator_sum / np.sqrt(denominator_document_sum * denominator_query_sum)
 

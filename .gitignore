@@ -5,3 +5,6 @@ activate/*
 index/*.txt
 **/*.pdf
 data/BigSample
+treceval/results/*
+treceval/eval/*
+treceval/trec_eval.8.1

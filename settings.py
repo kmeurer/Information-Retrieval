@@ -41,7 +41,7 @@ DOC_FILE_NAME = 'DocList'
 # Build all indexes option.  If set to True, will build each index type
 BUILD_ALL_INDEXES = True
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
-INDEX_TYPE = "PHRASE"
+INDEX_TYPE = "STEM"
 # Determines whether the triples list is stored in memory after it has been converted to the posting list.
 KEEP_TRIPLES_LIST = False
 # (optional) Set a minimum term frequency for the phrase index (as phrases that occur just once per document aren't phrases)
@@ -49,27 +49,38 @@ MIN_PHRASE_TF = 2
 # Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)
 MEMORY_MAXIMUM = 100000
 
-'''QUERY PROCESSING SETTINGS'''
+'''QUERY PROCESSING SETTINGS: GENERAL'''
 # Method of Query processing.  Allowed Values: "STANDARD" or "CONDITIONAL"
 # Standard: Sends all queries to the index specified by QUERY_PROCESSING_INDEX
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
-# Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
-QUERY_PROCESSING_INDEX = "INVERTED"
 # Relevance Ranking Option. Valid types are: "BM25", "COSINE", "LANGUAGE"
-SIMILARITY_MEASURE = "COSINE"
+SIMILARITY_MEASURE = "LANGUAGE"
+# Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
+EXTRACT_FULL_POSTING_LIST = True
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
 BM_25_K2 = 500
 BM_25_B  = 0.75
 # DIRICHLET TUNING PARAMETERS: ONLY USED IF SIMILARITY_MEASURE = "LANGUAGE"
-LANG_U = 50.0
-USE_AVG_DOC_LENGTH_FOR_LANG_U = True
+LANG_U = 560.0
+# Overrides LANG_U if set to true
+USE_AVG_DOC_LENGTH_FOR_LANG_U = False
+
+'''QUERY PROCESSING SETTINGS: STANDARD METHOD'''
+# Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
+QUERY_PROCESSING_INDEX = "INVERTED"
+
+'''QUERY PROCESSING SETTINGS: CONDITIONAL METHOD'''
 # PHRASE MIN DF: Minimum document frequency for a phrase for it to be sent to the phrase index
 PHRASE_MIN_DF = 2
-# Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
-EXTRACT_FULL_POSTING_LIST = True
+# MIN DOCS RETRIEVED:  Minimum number of documents retrieved to terminate and stop retrieving docs.
+# If this number is not met, then the method will use the backup index
+MIN_DOCS_RETRIEVED = 30
+# BACKUP INDEX:  Acceptable values are "INVERTED" or "STEM"
+BACKUP_INDEX = "STEM"
 
-./trec_eval -q -a ~/Projects/InformationRetrieval/treceval/qrel.txt ~/Projects/InformationRetrieval/treceval/results/standard_inverted_language.txt > ~/Projects/InformationRetrieval/treceval/eval/standard_inverted_language_eval.txt
+
+# ~/Projects/InformationRetrieval/treceval/trec_eval.8.1/trec_eval -q -a ~/Projects/InformationRetrieval/treceval/qrel.txt ~/Projects/InformationRetrieval/treceval/results/standard_inverted_language.txt > ~/Projects/InformationRetrieval/treceval/eval/standard_inverted_language_eval_100.txt
 
 
