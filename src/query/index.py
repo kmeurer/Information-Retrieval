@@ -17,8 +17,7 @@ class Index(object):
         self.doc_list = self._read_doc_list_to_memory(doc_list_file_location)
         # extract posting list
         self.posting_list_file_location = posting_list_file_location
-        if ENV.EXTRACT_FULL_POSTING_LIST == True:
-            self.posting_list = self._read_full_postings_to_memory(posting_list_file_location)
+        self.posting_list = self._read_full_postings_to_memory(posting_list_file_location)
         # extract lexicon
         self.lexicon_file_location = lexicon_file_location
         self.lexicon = self._read_lexicon_to_memory(lexicon_file_location)
@@ -31,13 +30,10 @@ class Index(object):
     # Given a list of termIds, retrieves specified term entries from the posting list
     # Returns: Dictionary of posting list entries: { termId: [[documentID, docFrequency], [documentID, docFrequency]]}
     def get_posting_entries(self, term_ids):
-        if ENV.EXTRACT_FULL_POSTING_LIST == True:
-            entries = {}
-            for term in term_ids:
-                entries[term] = self.get_posting_entry(term)
-            return entries
-        else:
-            return self.read_posting_entries_to_memory(self.posting_list_file_location, term_ids)
+        entries = {}
+        for term in term_ids:
+            entries[term] = self.get_posting_entry(term)
+        return entries
 
     # Given a list of terms, retrieves specified term entries from the posting list
     # Returns: Dictionary of posting list entries: { termId: [[documentID, docFrequency], [documentID, docFrequency]]}

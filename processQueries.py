@@ -55,13 +55,33 @@ else:
     raise ValueError("Please enter a valid value for QUERY_PROCESSING_METHOD.  You entered %s." % (ENV.QUERY_PROCESSING_METHOD))
 
 ''' load queries into memory as query objects '''
-queryData = qp.extractQueryInformation()
-queryTitles = queryData.keys() # gives us each query title
-queryScores = {} # stores our similarity scores by query title in format
+query_data = qp.extractQueryInformation()
+query_scores = {} # stores our similarity scores by query
+if ENV.QUERY_TYPE is "TITLE":
+    queries = query_data.keys() # gives us each query title
+    query_scores = query_data
+elif ENV.QUERY_TYPE is "NARRATIVE":
+    query_titles = query_data.keys()
+    queries = []
+    # change our keys so that the narrative (the query) becomes the key and the title becomes a value
+    for q in query_data:
+        queries.append(query_data[q]['narrative'])
+        query_scores[query_data[q]['narrative']] = {}
+        print q
+        for key in query_data[q]:
+            if key is 'narrative':
+                continue
+            print key
+            query_scores[query_data[q]['narrative']][key] = query_data[q][key]
+        query_scores[query_data[q]['narrative']]['title'] = q
+    print queries
+else:
+    raise ValueError("Please enter a valid value for QUERY_TYPE.  You entered %s." % (ENV.QUERY_TYPE))
+    
 
 print '\n\n---BEGINNING QUERY PROCESSING---'
 # for each query we have extracted
-for queryText in queryTitles:
+for queryText in queries:
     print "\n---\n\nProcessing query: " + queryText
     # preprocessEachQuery using the same rules relied upon for documents
     query = qp.preprocess_query(queryText, ENV.STOP_TERMS)
@@ -71,12 +91,12 @@ for queryText in queryTitles:
         if ENV.QUERY_PROCESSING_INDEX == 'STEM':
             query.stemTerms()
         if ENV.SIMILARITY_MEASURE == 'BM25':
-            queryData[queryText]['rankings'] = bm25.extract_bm25_scores(query, primary_index)
+            query_scores[queryText]['rankings'] = bm25.extract_bm25_scores(query, primary_index)
         elif ENV.SIMILARITY_MEASURE == 'COSINE':
-            queryData[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, primary_index)
+            query_scores[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, primary_index)
         elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-            queryData[queryText]['rankings'] = lang.extract_language_model_scores(query, primary_index)
-        print "Retrieved %s documents." % (len(queryData[queryText]['rankings']))
+            query_scores[queryText]['rankings'] = lang.extract_language_model_scores(query, primary_index)
+        print "Retrieved %s documents." % (len(query_scores[queryText]['rankings']))
     elif ENV.QUERY_PROCESSING_METHOD == "CONDITIONAL":
         query_phrases = query.extractValidPhrases(ENV.STOP_TERMS)
         use_phrase = False
@@ -87,35 +107,35 @@ for queryText in queryTitles:
         if use_phrase == True:
             ENV.QUERY_PROCESSING_INDEX = 'PHRASE'
             if ENV.SIMILARITY_MEASURE == 'BM25':
-                queryData[queryText]['rankings'] = bm25.extract_bm25_scores(query, phrase_index)
+                query_scores[queryText]['rankings'] = bm25.extract_bm25_scores(query, phrase_index)
             elif ENV.SIMILARITY_MEASURE == 'COSINE':
-                queryData[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, phrase_index)
+                query_scores[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, phrase_index)
             elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-                queryData[queryText]['rankings'] = lang.extract_language_model_scores(query, phrase_index)
+                query_scores[queryText]['rankings'] = lang.extract_language_model_scores(query, phrase_index)
         else:
             ENV.QUERY_PROCESSING_INDEX = 'POSITIONAL'
             if ENV.SIMILARITY_MEASURE == 'BM25':
-                queryData[queryText]['rankings'] = bm25.extract_bm25_scores(query, positional_index)
+                query_scores[queryText]['rankings'] = bm25.extract_bm25_scores(query, positional_index)
             elif ENV.SIMILARITY_MEASURE == 'COSINE':
-                queryData[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, positional_index)
+                query_scores[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, positional_index)
             elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-                queryData[queryText]['rankings'] = lang.extract_language_model_scores(query, positional_index)
+                query_scores[queryText]['rankings'] = lang.extract_language_model_scores(query, positional_index)
         # If we haven't retrieved enough docs to say we're done...
-        if len(queryData[queryText]['rankings']) <= ENV.MIN_DOCS_RETRIEVED:
+        if len(query_scores[queryText]['rankings']) <= ENV.MIN_DOCS_RETRIEVED:
             query.removeStopWords(ENV.STOP_TERMS)
             # retrieve more documents using the backup index
-            print "\nNot enough documents retrieved for the query: %s.  Needed %d and only retrieved %f." % (queryText, int(ENV.MIN_DOCS_RETRIEVED), int(len(queryData[queryText]['rankings'])))
+            print "\nNot enough documents retrieved for the query: %s.  Needed %d and only retrieved %f." % (queryText, int(ENV.MIN_DOCS_RETRIEVED), int(len(query_scores[queryText]['rankings'])))
             print  "Proceeding to use %s index to find more relevant docs." % (ENV.BACKUP_INDEX.lower())
             ENV.QUERY_PROCESSING_INDEX = ENV.BACKUP_INDEX
             if ENV.BACKUP_INDEX == 'STEM':
                 query.stemTerms()
             if ENV.SIMILARITY_MEASURE == 'BM25':
-                queryData[queryText]['rankings'] = bm25.extract_bm25_scores(query, backup_index)
+                query_scores[queryText]['rankings'] = bm25.extract_bm25_scores(query, backup_index)
             elif ENV.SIMILARITY_MEASURE == 'COSINE':
-                queryData[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, backup_index)
+                query_scores[queryText]['rankings'] = vsm.extract_vector_space_cosine_scores(query, backup_index)
             elif ENV.SIMILARITY_MEASURE == 'LANGUAGE':
-                queryData[queryText]['rankings'] = lang.extract_language_model_scores(query, backup_index)
-        print "\nRetrieved %s documents." % (len(queryData[queryText]['rankings']))
+                query_scores[queryText]['rankings'] = lang.extract_language_model_scores(query, backup_index)
+        print "\nRetrieved %s documents." % (len(query_scores[queryText]['rankings']))
     else:
         raise ValueError("Please enter a valid value for QUERY_PROCESSING_METHOD.  You entered " + ENV.QUERY_PROCESSING_METHOD + ".") 
 
@@ -125,18 +145,16 @@ if ENV.QUERY_PROCESSING_METHOD == 'STANDARD':
 else:
     file_name = '%s%s_%s_%s.txt' % (ENV.TRECEVAL_SRC, ENV.QUERY_PROCESSING_METHOD.lower(), ENV.BACKUP_INDEX.lower(), ENV.SIMILARITY_MEASURE.lower())
 eval_file = codecs.open(file_name, 'w', 'utf-8')
-for qt in queryData:
-    for idx, ranked_query in enumerate(queryData[qt]['rankings'][0:100]):
-        file_entry = '%d 0 %s %d %f %s\n' % (queryData[qt]['number'], util.convert_num_id_to_trek_id(ranked_query[0]), idx + 1, ranked_query[1], ENV.SIMILARITY_MEASURE)
+for qt in query_scores:
+    for idx, ranked_query in enumerate(query_scores[qt]['rankings'][0:100]):
+        file_entry = '%d 0 %s %d %f %s\n' % (query_scores[qt]['number'], util.convert_num_id_to_trek_id(ranked_query[0]), idx + 1, ranked_query[1], ENV.SIMILARITY_MEASURE)
         eval_file.write(file_entry)
 
 eval_file.close()
 
-print primary_index.get_avg_document_length()
-
 end_time = datetime.datetime.now()
 
 total_time = end_time - start_time
-print '\n\nRANKED %s QUERIES IN %d SECONDS.' % (len(queryTitles), total_time.seconds)
+print '\n\nRANKED %s QUERIES IN %d SECONDS.' % (len(queries), total_time.seconds)
 
 

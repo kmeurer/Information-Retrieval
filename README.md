@@ -26,8 +26,11 @@ Bisect (built into python/not external) – Used for insort methods to keep list
 
 ### Running the Project
 To get started and run my project, there are a few things you need to do:
-1.	For everything to run, you’ll have to make sure the dependencies are installed (only numpy, tabulate, and nltk).  To do so, run: pip install –r requirements.txt (note: this command requires pip).  All testing has been completed on python 2.7.8.
+
+1.	For everything to run, you’ll have to make sure the dependencies are installed (only numpy, tabulate, and nltk).  To do so, run: pip install –r requirements.txt (note: this command requires pip)
 2.	Now, open settings.py and make sure that the settings are as you want them.
-3.	Run the main file using the following command: python main.py
-4.	View your output in the command line or write it to a file by running: python main.py > yourfile.txt.
+3.	If indexes have not yet been generated (there is nothing in the index folder), generate them now by running this command: python buildIndices.py
+4.	Now, run the query processing task using the following command: python queryProcessing.py
+5.	View your output in the treceval folder under results.  In its current condition, all primary variations have been generated.  However, running the file will replace the existing version of the results.
+
 

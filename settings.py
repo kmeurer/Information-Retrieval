@@ -55,15 +55,19 @@ MEMORY_MAXIMUM = 100000
 # Conditional: Sends some queries to phrase index and others to positional index
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Relevance Ranking Option. Valid types are: "BM25", "COSINE", "LANGUAGE"
-SIMILARITY_MEASURE = "LANGUAGE"
-# Set Whether to extract the full posting list into memory.  Automatically set to true if using Vector space model
-EXTRACT_FULL_POSTING_LIST = True
+SIMILARITY_MEASURE = "BM25"
+# Query-Type: Determines whether the system uses "TITLE" or "NARRATIVE" as the query
+QUERY_TYPE = "TITLE"
+# Determine whether to use query expansion on the queries.  WIll only be used if QUERY_TYPE is "TITLE"
+USE_QUERY_EXPANSION = True
+# Determine whether to use query reduction on the queries.  WIll only be used if QUERY_TYPE is "NARRATIVE"
+USE_QUERY_REDUCTION = False
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
-BM_25_K2 = 500
-BM_25_B  = 0.75
+BM_25_K2 = 500.0
+BM_25_B  = .75
 # DIRICHLET TUNING PARAMETERS: ONLY USED IF SIMILARITY_MEASURE = "LANGUAGE"
-LANG_U = 560.0
+LANG_U = 1.0
 # Overrides LANG_U if set to true
 USE_AVG_DOC_LENGTH_FOR_LANG_U = False
 
@@ -78,9 +82,6 @@ PHRASE_MIN_DF = 2
 # If this number is not met, then the method will use the backup index
 MIN_DOCS_RETRIEVED = 30
 # BACKUP INDEX:  Acceptable values are "INVERTED" or "STEM"
-BACKUP_INDEX = "STEM"
-
-
-# ~/Projects/InformationRetrieval/treceval/trec_eval.8.1/trec_eval -q -a ~/Projects/InformationRetrieval/treceval/qrel.txt ~/Projects/InformationRetrieval/treceval/results/standard_inverted_language.txt > ~/Projects/InformationRetrieval/treceval/eval/standard_inverted_language_eval_100.txt
+BACKUP_INDEX = "INVERTED"
 
 

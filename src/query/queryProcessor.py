@@ -16,28 +16,36 @@ def extractQueryInformation():
     currentLine = queryFile.readline()
     currentNum = None
     currentTitle = ''
+    count = 0
     while currentLine != '':
         if '<num>' in currentLine:
+            count += 1
             numLine = currentLine.split('Number: ')
-            currentNum = int(re.sub("\s", "", numLine[1]))
+            currentNum = int(re.sub('\s', '', numLine[1]))
         elif '<title>' in currentLine:
             titleLine = currentLine.split('Topic: ')
             title = titleLine[1].replace('\n', '')
             queries[title] = {}
-            queries[title]["number"] = currentNum
+            queries[title]['number'] = currentNum
             currentTitle = title
         elif '<desc>' in currentLine:
             currentLine = queryFile.readline()
             description = ''
+            narrative = ''
             while '<narr>' not in currentLine:
                 description += currentLine.replace('\n', ' ')
                 currentLine = queryFile.readline()
-            queries[currentTitle]["description"] = description
+            currentLine = queryFile.readline()
+            while '</top>' not in currentLine:
+                narrative += currentLine.replace('\n', ' ')
+                currentLine = queryFile.readline()
+            queries[currentTitle]['description'] = description
+            queries[currentTitle]['narrative'] = narrative
         currentLine = queryFile.readline()
     return queries
 
 def preprocess_query(queryString, stopTerms):
-    if queryString.isspace() or queryString == "" :
+    if queryString.isspace() or queryString == '' :
         return None
     # Convert document to class format
     query = q.Query(queryString)
