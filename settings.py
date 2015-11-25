@@ -44,9 +44,11 @@ BUILD_ALL_INDEXES = True
 INDEX_TYPE = "STEM"
 # Determines whether the triples list is stored in memory after it has been converted to the posting list.
 KEEP_TRIPLES_LIST = False
-# (optional) Set a minimum term frequency for the phrase index (as phrases that occur just once per document aren't phrases)
+# (optional) Set a minimum term frequency for the phrase index 
+# (as phrases that occur just once per document aren't phrases)
 MIN_PHRASE_TF = 2
-# Maximum memory for triple list, measured in number of triples (for unlimited memory, set this to a massive number)
+# Maximum memory for triple list, measured in number of 
+# triples (for unlimited memory, set this to a massive number)
 MEMORY_MAXIMUM = 100000
 
 '''QUERY PROCESSING SETTINGS: GENERAL'''
@@ -56,11 +58,20 @@ MEMORY_MAXIMUM = 100000
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Relevance Ranking Option. Valid types are: "BM25", "COSINE", "LANGUAGE"
 SIMILARITY_MEASURE = "BM25"
-# Query-Type: Determines whether the system uses "TITLE" or "NARRATIVE" as the query
+# Query-Type: Determines whether the system uses "TITLE" 
+# or "NARRATIVE" as the query
 QUERY_TYPE = "TITLE"
-# Determine whether to use query expansion on the queries.  WIll only be used if QUERY_TYPE is "TITLE"
+# Determine whether to use query expansion on the queries.  
+# Will only be used if QUERY_TYPE is "TITLE"
 USE_QUERY_EXPANSION = True
-# Determine whether to use query reduction on the queries.  WIll only be used if QUERY_TYPE is "NARRATIVE"
+# Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE' or 'THESAURI'
+QUERY_EXPANSION_METHOD = 'RELEVANCE'
+# parameters for RELEVANCE ranking
+REL_NUM_TOP_DOCS = 20
+REL_NUM_TOP_TERMS = 10
+REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'RIDF'
+# Determine whether to use query reduction on the queries.  Will only be used if QUERY_TYPE is 
+# "NARRATIVE". Defaults to query threshold method
 USE_QUERY_REDUCTION = False
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
