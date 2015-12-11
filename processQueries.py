@@ -19,6 +19,7 @@ from query import queryReducer as q_red
 from query import queryExpander as q_exp
 from indexing import indexing as idx
 from object_definitions import document as d
+from object_definitions.query import Query
 
 start_time = datetime.datetime.now()
 
@@ -68,11 +69,9 @@ elif ENV.QUERY_TYPE is "NARRATIVE":
     for q in query_data:
         queries.append(query_data[q]['narrative'])
         query_scores[query_data[q]['narrative']] = {}
-        print q
         for key in query_data[q]:
             if key is 'narrative':
                 continue
-            print key
             query_scores[query_data[q]['narrative']][key] = query_data[q][key]
         query_scores[query_data[q]['narrative']]['title'] = q
 else:
@@ -80,23 +79,38 @@ else:
     
 ''' OPTIONAL QUERY REDUCTION '''
 if ENV.USE_QUERY_REDUCTION is True and ENV.QUERY_TYPE is 'NARRATIVE':
-    print "\n---\n\nExpanding query using thesaurus: "
-        for idx, query_text in enumerate(queries):
-            queries[idx] = q_red.reduce_query(query_text)
+    print "\n---\n\nReducing query using Query thresholding: "
+    for idx, query_text in enumerate(queries):
+        query = qp.preprocess_query(query_text, ENV.STOP_TERMS)
+        top_terms = query.get_ranked_terms()
+        expanding_query = Query(top_terms[0])
+        for term in top_terms:
+            rel_docs = qp.get_relevant_docs(expanding_query)
+            if len(rel_docs) > ENV.QUERY_THRESHOLD_DOCS_RETRIEVED:
+                print '\nReduced initial query to \"%s\".  Stopped processing as %d docs were retrieved.\n_________\n' % (expanding_query.text, len(rel_docs))
+                queries[idx] = query.text
+                if query_text in query_scores:
+                    query_scores[queries[idx]] = query_scores.pop(query_text)
+                query_scores[queries[idx]]['rankings'] = rel_docs  
+                break
+            elif term not in expanding_query.text:
+                expanding_query.addText(term)
+            else:
+                continue        
+else:
+    ''' QUERY PRIMARY PROCESSING '''
+    print '\n\n---BEGINNING QUERY PROCESSING---'
+    # for each query we have extracted
+    for idx, query_text in enumerate(queries):
+        print "\n---\n\nProcessing query: " + query_text
+        # preprocess each query using the same rules relied upon for documents
+        query = qp.preprocess_query(query_text, ENV.STOP_TERMS)
+        queries[idx] = query.text
+        if query_text in query_scores:
             query_scores[queries[idx]] = query_scores.pop(query_text)
-            print "Reduced \"%s\" to \"%s\"" % (query_text, queries[idx])
+        query_scores[queries[idx]]['rankings'] = qp.get_relevant_docs(query)    
 
-''' QUERY INITIAL PROCESSING '''
-print '\n\n---BEGINNING QUERY PROCESSING---'
-# for each query we have extracted
-for queryText in queries:
-    print "\n---\n\nProcessing query: " + queryText
-    # preprocessEachQuery using the same rules relied upon for documents
-    query = qp.preprocess_query(queryText, ENV.STOP_TERMS)
-    query_scores[queryText]['rankings'] = qp.get_relevant_docs(query)
-    
-
-''' QUERY EXPANSION '''
+''' OPTIONAL QUERY EXPANSION '''
 if ENV.QUERY_TYPE is 'TITLE' and ENV.USE_QUERY_EXPANSION == True:
     if ENV.QUERY_EXPANSION_METHOD == 'RELEVANCE':
         print "\n---\n\nExpanding query using relevance feedback: "

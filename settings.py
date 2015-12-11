@@ -26,7 +26,6 @@ PREFIX_LIST = ['anti', 'auto', 'co', 'com', 'con', 'contra', 'de', 'dis', 'en', 
 DOMAIN_LIST = ['.com', '.edu', '.org', '.net', '.gov']
 FILE_EXTENSION_LIST = ['.pdf', '.html', '.doc', '.docx', '.css', '.ppt', '.py', '.txt', '.csv', '.xml', '.mp3', '.mov', '.avi', '.png', '.jpeg', '.jpg', '.xls', '.exe', '.js']
 
-
 '''INDEXING SETTINGS'''
 # Relative path to index directory (always use trailing slash)
 INDEX_LOCATION = './index/'
@@ -41,7 +40,7 @@ DOC_FILE_NAME = 'DocList'
 # Build all indexes option.  If set to True, will build each index type
 BUILD_ALL_INDEXES = True
 # Type of Index.  Valid types are: "INVERTED", "POSITIONAL", "STEM", and "PHRASE"
-INDEX_TYPE = "STEM"
+INDEX_TYPE = "INVERTED"
 # Determines whether the triples list is stored in memory after it has been converted to the posting list.
 KEEP_TRIPLES_LIST = False
 # (optional) Set a minimum term frequency for the phrase index 
@@ -60,19 +59,20 @@ QUERY_PROCESSING_METHOD = "STANDARD"
 SIMILARITY_MEASURE = "BM25"
 # Query-Type: Determines whether the system uses "TITLE" 
 # or "NARRATIVE" as the query
-QUERY_TYPE = "TITLE"
+QUERY_TYPE = "NARRATIVE"
 # Determine whether to use query expansion on the queries.  
 # Will only be used if QUERY_TYPE is "TITLE"
 USE_QUERY_EXPANSION = True
-# Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE' or 'THESAURI'
+# Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE'
 QUERY_EXPANSION_METHOD = 'RELEVANCE'
 # parameters for RELEVANCE ranking
-REL_NUM_TOP_DOCS = 20
-REL_NUM_TOP_TERMS = 10
-REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'RIDF'
+REL_NUM_TOP_DOCS = 100
+REL_NUM_TOP_TERMS = 1
+REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'FIDF'
 # Determine whether to use query reduction on the queries.  Will only be used if QUERY_TYPE is 
 # "NARRATIVE". Defaults to query threshold method
 USE_QUERY_REDUCTION = False
+QUERY_THRESHOLD_DOCS_RETRIEVED = 100
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
 BM_25_K2 = 500.0

@@ -27,6 +27,43 @@ class Index(object):
            self._extract_document_summations()
 
     
+    def get_n_idf_ranked_list(self, doc_ids):
+        # scan posting list to get all relevant terms
+        rel_terms = []
+        rel_df = []
+        for term_id in self.posting_list:
+            for doc_id in doc_ids:
+                if doc_id in [doc[0] for doc in self.posting_list[term_id]]:
+                    if term_id in rel_terms:
+                        rel_df[len(rel_df) - 1 ] += 1
+                    else:
+                        rel_terms.append(term_id)
+                        rel_df.append(1)
+        n_idf_ranking = []
+        for idx, term in enumerate(rel_terms):
+            n_idf_ranking.append([rel_df[idx] * qp.calculate_idf(self.get_df_by_term_id(term), self.get_collection_size()), term])
+        n_idf_ranking.sort(reverse=True)
+        return n_idf_ranking
+
+    def get_f_idf_ranked_list(self, doc_ids):
+        # scan posting list to get all relevant terms
+        rel_terms = []
+        rel_tf = []
+        for term_id in self.posting_list:
+            for doc_id in doc_ids:
+                abridged_list = [doc[0] for doc in self.posting_list[term_id]]
+                if doc_id in abridged_list:
+                    if term_id in rel_terms:
+                        rel_tf[len(rel_tf) - 1 ] += self.posting_list[term_id][abridged_list.index(doc_id)][1]
+                    else:
+                        rel_terms.append(term_id)
+                        rel_tf.append(self.posting_list[term_id][abridged_list.index(doc_id)][1])
+        f_idf_ranking = []
+        for idx, term in enumerate(rel_terms):
+            f_idf_ranking.append([rel_tf[idx] * qp.calculate_idf(self.get_df_by_term_id(term), self.get_collection_size()), term])
+        f_idf_ranking.sort(reverse=True)
+        return f_idf_ranking
+
     # Given a list of termIds, retrieves specified term entries from the posting list
     # Returns: Dictionary of posting list entries: { termId: [[documentID, docFrequency], [documentID, docFrequency]]}
     def get_posting_entries(self, term_ids):
