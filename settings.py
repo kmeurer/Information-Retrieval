@@ -62,12 +62,12 @@ SIMILARITY_MEASURE = "BM25"
 QUERY_TYPE = "NARRATIVE"
 # Determine whether to use query expansion on the queries.  
 # Will only be used if QUERY_TYPE is "TITLE"
-USE_QUERY_EXPANSION = True
+USE_QUERY_EXPANSION = False
 # Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE'
 QUERY_EXPANSION_METHOD = 'RELEVANCE'
 # parameters for RELEVANCE ranking
-REL_NUM_TOP_DOCS = 100
-REL_NUM_TOP_TERMS = 1
+REL_NUM_TOP_DOCS = 10
+REL_NUM_TOP_TERMS = 5
 REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'FIDF'
 # Determine whether to use query reduction on the queries.  Will only be used if QUERY_TYPE is 
 # "NARRATIVE". Defaults to query threshold method

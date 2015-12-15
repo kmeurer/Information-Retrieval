@@ -21,6 +21,7 @@ from indexing import indexing as idx
 from object_definitions import document as d
 from object_definitions.query import Query
 
+
 start_time = datetime.datetime.now()
 
 ENV.STOP_TERMS = util.extractStopTerms()
@@ -82,6 +83,8 @@ if ENV.USE_QUERY_REDUCTION is True and ENV.QUERY_TYPE is 'NARRATIVE':
     print "\n---\n\nReducing query using Query thresholding: "
     for idx, query_text in enumerate(queries):
         query = qp.preprocess_query(query_text, ENV.STOP_TERMS)
+        if ENV.QUERY_PROCESSING_INDEX == 'STEM':
+            query.stemTerms()
         top_terms = query.get_ranked_terms()
         expanding_query = Query(top_terms[0])
         for term in top_terms:
@@ -118,12 +121,6 @@ if ENV.QUERY_TYPE is 'TITLE' and ENV.USE_QUERY_EXPANSION == True:
             queries[idx] = q_exp.expand_query(query_text, query_scores[query_text]['rankings'])
             query_scores[queries[idx]] = query_scores.pop(query_text)
             print "Expanded \"%s\" to \"%s\"" % (query_text, queries[idx])
-    elif ENV.QUERY_EXPANSION_METHOD == 'THESAURI':
-        print "\n---\n\nExpanding query using thesaurus: "
-        for idx, query_text in enumerate(queries):
-            queries[idx] = q_exp.expand_query(query_text, query_scores[query_text]['rankings'], 'THESAURI')
-            query_scores[queries[idx]] = query_scores.pop(query_text)
-            print "Expanded \"%s\" to \"%s\"" % (query_text, queries[idx])
     else:
         raise ValueError("Please enter a valid value for QUERY_EXPANSION_METHOD.  You entered " + ENV.QUERY_EXPANSION_METHOD + ".") 
     ''' rerank docs '''
@@ -131,13 +128,21 @@ if ENV.QUERY_TYPE is 'TITLE' and ENV.USE_QUERY_EXPANSION == True:
         print "\n---\n\nProcessing query: " + queryText
         # preprocessEachQuery using the same rules relied upon for documents
         query = qp.preprocess_query(queryText, ENV.STOP_TERMS)
+        if ENV.QUERY_PROCESSING_INDEX == 'STEM':
+            query.stemTerms()
         query_scores[queryText]['rankings'] = qp.get_relevant_docs(query)
 
 ''' EVAL FILE WRITE '''
-if ENV.QUERY_PROCESSING_METHOD == 'STANDARD':
+if ENV.QUERY_PROCESSING_METHOD == 'STANDARD' and ENV.USE_QUERY_EXPANSION is False and ENV.USE_QUERY_REDUCTION is False:
     file_name = '%s%s_%s_%s.txt' % (ENV.TRECEVAL_SRC, ENV.QUERY_PROCESSING_METHOD.lower(), ENV.QUERY_PROCESSING_INDEX.lower(), ENV.SIMILARITY_MEASURE.lower())
-else:
+elif ENV.QUERY_PROCESSING_METHOD == 'STANDARD' and ENV.USE_QUERY_EXPANSION is True:
+    file_name = '%sexpansion_%d_%d_%s_%s_%s_%s.txt' % (ENV.TRECEVAL_SRC, ENV.REL_NUM_TOP_DOCS, ENV.REL_NUM_TOP_TERMS, ENV.REL_SORT_CRITERIA, ENV.QUERY_PROCESSING_METHOD.lower(), ENV.QUERY_PROCESSING_INDEX.lower(), ENV.SIMILARITY_MEASURE.lower())
+elif ENV.QUERY_PROCESSING_METHOD == 'STANDARD' and ENV.USE_QUERY_REDUCTION is True and ENV.QUERY_TYPE is 'NARRATIVE':
+    file_name = '%sreduction_%d_%s_%s_%s.txt' % (ENV.TRECEVAL_SRC, ENV.QUERY_THRESHOLD_DOCS_RETRIEVED, ENV.QUERY_PROCESSING_METHOD.lower(), ENV.QUERY_PROCESSING_INDEX.lower(), ENV.SIMILARITY_MEASURE.lower())
+elif ENV.QUERY_PROCESSING_METHOD == 'CONDITIONAL':
     file_name = '%s%s_%s_%s.txt' % (ENV.TRECEVAL_SRC, ENV.QUERY_PROCESSING_METHOD.lower(), ENV.BACKUP_INDEX.lower(), ENV.SIMILARITY_MEASURE.lower())
+else:
+    raise ValueError("Please enter a valid value for QUERY_PROCESSING_METHOD.") 
 eval_file = codecs.open(file_name, 'w', 'utf-8')
 for qt in query_scores:
     for idx, ranked_query in enumerate(query_scores[qt]['rankings'][0:100]):
