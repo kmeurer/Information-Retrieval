@@ -54,25 +54,14 @@ MEMORY_MAXIMUM = 100000
 # Method of Query processing.  Allowed Values: "STANDARD" or "CONDITIONAL"
 # Standard: Sends all queries to the index specified by QUERY_PROCESSING_INDEX
 # Conditional: Sends some queries to phrase index and others to positional index
+# Note: Query reduction and expansion not supported using conditional processing
 QUERY_PROCESSING_METHOD = "STANDARD"
 # Relevance Ranking Option. Valid types are: "BM25", "COSINE", "LANGUAGE"
 SIMILARITY_MEASURE = "BM25"
 # Query-Type: Determines whether the system uses "TITLE" 
 # or "NARRATIVE" as the query
-QUERY_TYPE = "NARRATIVE"
-# Determine whether to use query expansion on the queries.  
-# Will only be used if QUERY_TYPE is "TITLE"
-USE_QUERY_EXPANSION = False
-# Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE'
-QUERY_EXPANSION_METHOD = 'RELEVANCE'
-# parameters for RELEVANCE ranking
-REL_NUM_TOP_DOCS = 10
-REL_NUM_TOP_TERMS = 5
-REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'FIDF'
-# Determine whether to use query reduction on the queries.  Will only be used if QUERY_TYPE is 
-# "NARRATIVE". Defaults to query threshold method
-USE_QUERY_REDUCTION = False
-QUERY_THRESHOLD_DOCS_RETRIEVED = 100
+# Note: Query expansion only works with "TITLE" and query reduction only works with "NARRATIVE"
+QUERY_TYPE = "TITLE" 
 # BM25 TUNING PARAMETERS: ONLY USED if SIMILARITY_MEASURE = "BM25"
 BM_25_K1 = 1.2
 BM_25_K2 = 500.0
@@ -81,6 +70,23 @@ BM_25_B  = .75
 LANG_U = 1.0
 # Overrides LANG_U if set to true
 USE_AVG_DOC_LENGTH_FOR_LANG_U = False
+
+'''QUERY EXPANSION SETTINGS'''
+# Determine whether to use query expansion on the queries. 
+# Will only be used if QUERY_TYPE is "TITLE"
+USE_QUERY_EXPANSION = True
+# Determines what type of query expansion method to use. Acceptable values are 'RELEVANCE'
+QUERY_EXPANSION_METHOD = 'RELEVANCE'
+# parameters for RELEVANCE ranking
+REL_NUM_TOP_DOCS = 10
+REL_NUM_TOP_TERMS = 5
+REL_SORT_CRITERIA = 'NIDF' # value can be 'NIDF' or 'FIDF'
+
+'''QUERY REDUCTION SETTINGS'''
+# Determine whether to use query reduction on the queries.  Will only be used if QUERY_TYPE is 
+# "NARRATIVE". Defaults to query threshold method
+USE_QUERY_REDUCTION = True
+QUERY_THRESHOLD_DOCS_RETRIEVED = 100
 
 '''QUERY PROCESSING SETTINGS: STANDARD METHOD'''
 # Index to be used if standard is specified.  Options possible are "INVERTED" or "STEM"
